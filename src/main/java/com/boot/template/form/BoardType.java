@@ -1,4 +1,4 @@
-package com.boot.template.from;
+package com.boot.template.form;
 
 import lombok.Data;
 

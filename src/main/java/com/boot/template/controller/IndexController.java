@@ -8,6 +8,6 @@ public class IndexController {
 
 	@RequestMapping(path="/")
 	public String index() {
-		return "index";
+		return "redirect:/board/list";
 	}
 }

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
 import com.boot.template.entity.Board;
-import com.boot.template.from.BoardType;
+import com.boot.template.form.BoardType;
 import com.boot.template.repo.BoardRepository;
 
 @Service

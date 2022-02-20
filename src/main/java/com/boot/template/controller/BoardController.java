@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.boot.template.from.BoardFrom;
+import com.boot.template.form.BoardForm;
 import com.boot.template.service.BoardService;
 
 @Controller
@@ -46,7 +46,7 @@ public class BoardController {
 	
 	
 	@RequestMapping(method = RequestMethod.POST, path = "write")
-	public String writeCompleteBoard(BoardFrom form) {
+	public String writeCompleteBoard(BoardForm form) {
 
 		return "redirect:/board/read/" + boardService.createBoard(form.makeEntity()).getNo();
 	}
@@ -67,7 +67,7 @@ public class BoardController {
 	
 	
 	@RequestMapping(method = RequestMethod.POST, path = "update/{no}")
-	public String updateCompleteBoard(@PathVariable int no, BoardFrom form,  Model model) {
+	public String updateCompleteBoard(@PathVariable int no, BoardForm form,  Model model) {
 		try {
 			boardService.updateBoard(no, form.makeEntity());
 			

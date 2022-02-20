@@ -1,11 +1,11 @@
-package com.boot.template.from;
+package com.boot.template.form;
 
 import com.boot.template.entity.Board;
 
 import lombok.Data;
 
 @Data
-public class BoardFrom {
+public class BoardForm {
 	
 	private Integer no;
 	private Integer type;
