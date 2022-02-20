@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, inital-scale=1.0"/>
+<title>Board List View</title>
+<style type="text/css">
+#write-board {
+  position: relative;
+  left: 70%;
+}
+
+</style>
+</head>
+<body>
+<div>
+    <div><h1>Board List</h1></div>
+    <div><button id="write-board" type="button" onclick="location.href='/board/write'">Write</button></div>
+    <hr/>
+    
+    <div>
+    <table border="1">
+    <tr>
+        <th>No</th>
+        <th>Contents Type</th>
+        <th>Title</th>
+        <th>CreatedTime</th>
+        <th>UpdatedTime</th>
+        <th>Likes</th>
+        <th>Counts</th>
+    </tr>
+    <tr th:each="board: ${boards}">
+        <td th:text="${board.no}"></td>
+        <td th:text="${board.type}"></td>
+        <td><a th:href="@{/board/read/{no}(no=${board.no})}">[[${board.title}]]</a></td>
+        <td th:text="${board.createdTime}"></td>
+        <td th:text="${board.updatedTime}"></td>
+        <td th:text="${board.likes}"></td>
+        <td th:text="${board.counts}"></td>
+    </tr>
+    </table>
+    </div>
+</div>
+</body>
+</html>
