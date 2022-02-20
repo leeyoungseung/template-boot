@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, inital-scale=1.0"/>
+<title>Board Write</title>
+<style type="text/css">
+.board-read-container {
+    margin-bottom: 20px;
+    background-color: #fff;
+    border: 1px solid;
+    width: 700px;
+}
+.board-read-header {
+    padding: 10px 15px;
+    border-bottom: 1px solid transparent;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+.board-read-body {
+    padding: 10px 15px 10px;
+    position: relative;
+    border-right: 1px solid #ddd;
+    height: 300px;
+}
+.btn {
+    padding: 10px 10px 10px 20px;
+}
+</style>
+
+</head>
+<body>
+<div class="board-read-container">
+    <div th:if="${not #strings.isEmpty(message)}">
+	    <h2> [[${message}]]	</h2>
+	</div>
+</div>
+<div>
+<button type="button" onclick="location.href='/board/list'">Back to List</button>
+</div>
+
+</body>
+<script th:inline="javascript">
+/*<![CDATA[*/
+var nextUrl = /*[[ ${nextUrl} ]]*/
+/*]]*/
+
+setTimeout(function() { 
+	window.location.href=nextUrl;
+}, 3000);
+</script>
+</html>

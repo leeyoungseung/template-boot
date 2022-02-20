@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, inital-scale=1.0"/>
+<title>Board Write</title>
+<style type="text/css">
+.board-read-container {
+    margin-bottom: 20px;
+    background-color: #fff;
+    border: 1px solid;
+    width: 700px;
+}
+.board-read-header {
+    padding: 10px 15px;
+    border-bottom: 1px solid transparent;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+.board-read-body {
+    padding: 10px 15px 10px;
+    position: relative;
+    border-right: 1px solid #ddd;
+    height: 300px;
+}
+.btn {
+    padding: 10px 10px 10px 20px;
+}
+</style>
+
+</head>
+<body>
+<div class="board-read-container">
+    <h2>Login Member</h2>
+    <form method="post" th:action=@{/auth/login}>
+    <div class="board-read-header">
+    <label> ID : </label> <input type="text" name="memberId">
+    </div>
+    <hr/>
+    <div class="board-read-body">
+    <label> Password : </label> <input type="password" name="password">
+    </div>
+    <hr/>
+    <div class="btn complete">
+    <input type="submit" value="Join Complete">
+    </div>
+    </form>
+</div>
+<div>
+<button type="button" onclick="location.href='/board/list'">Back to List</button>
+</div>
+</body>
+</html>
