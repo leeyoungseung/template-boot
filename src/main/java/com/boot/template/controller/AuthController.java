@@ -1,14 +1,17 @@
 package com.boot.template.controller;
 
 import java.util.Date;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -32,7 +35,28 @@ public class AuthController {
 	
 	
 	@RequestMapping(method = RequestMethod.POST, path = "/join")
-	public String doJoin(LoginForm form, Model model) {
+	public String doJoin(@Validated LoginForm form, BindingResult bindingResult, Model model) {
+		
+		if (bindingResult.hasErrors()) {
+			List<String> errors = bindingResult.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.toList());
+			StringBuilder errorStr = new StringBuilder();
+			errors.forEach(err -> {
+				errorStr.append("["+err+"],");
+			});
+			
+			model.addAttribute("message", errorStr);
+			model.addAttribute("nextUrl", "/auth/join");
+			return "/auth/message";
+		}
+		
+		// exist and data
+		Optional<Member> memberOp = memberRepo.findByMemberId(form.getMemberId());
+		if (!memberOp.isEmpty()) {
+			model.addAttribute("message", form.getMemberId()+" is already exist!!");
+			model.addAttribute("nextUrl", "/auth/join");
+			return "/auth/message";
+		}
+		
 		
 		Member member = form.makeEntity();
 		member.setPassword(enc.generateSHA512(member.getPassword()));
@@ -59,7 +83,7 @@ public class AuthController {
 		// exist and data
 		Optional<Member> memberOp = memberRepo.findByMemberId(form.getMemberId());
 		if (memberOp.isEmpty()) {
-			model.addAttribute("message", form.getMemberId()+"is not exist!!");
+			model.addAttribute("message", form.getMemberId()+" is not exist!!");
 			model.addAttribute("nextUrl", "/auth/join");
 			return "/auth/message";
 		}
