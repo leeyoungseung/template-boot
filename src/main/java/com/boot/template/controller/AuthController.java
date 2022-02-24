@@ -46,7 +46,7 @@ public class AuthController {
 			
 			model.addAttribute("message", errorStr);
 			model.addAttribute("nextUrl", "/auth/join");
-			return "/auth/message";
+			return "/common/message";
 		}
 		
 		// exist and data
@@ -54,7 +54,7 @@ public class AuthController {
 		if (!memberOp.isEmpty()) {
 			model.addAttribute("message", form.getMemberId()+" is already exist!!");
 			model.addAttribute("nextUrl", "/auth/join");
-			return "/auth/message";
+			return "/common/message";
 		}
 		
 		
@@ -67,7 +67,7 @@ public class AuthController {
 		model.addAttribute("message", member.getMemberId()+"has been joined!!");
 		model.addAttribute("nextUrl", "/auth/login");
 		
-		return "/auth/message";
+		return "/common/message";
 	}
 	
 	
@@ -85,14 +85,14 @@ public class AuthController {
 		if (memberOp.isEmpty()) {
 			model.addAttribute("message", form.getMemberId()+" is not exist!!");
 			model.addAttribute("nextUrl", "/auth/join");
-			return "/auth/message";
+			return "/common/message";
 		}
 		
 		// Password OK?
 		if (!memberOp.get().getPassword().equals(enc.generateSHA512(form.getPassword()))) {
 			model.addAttribute("message", "Unmatch Password!!");
 			model.addAttribute("nextUrl", "/auth/login");
-			return "/auth/message";
+			return "/common/message";
 		}
 		
 		// Set User Data in Session
@@ -103,7 +103,7 @@ public class AuthController {
 		model.addAttribute("message", "Login Success!!");
 		model.addAttribute("nextUrl", "/");
 
-		return "/auth/message";
+		return "/common/message";
 	}
 	
 
@@ -114,6 +114,6 @@ public class AuthController {
 		model.addAttribute("message", "Logout Success!!");
 		model.addAttribute("nextUrl", "/");
 		
-		return "/auth/message";
+		return "/common/message";
 	}
 }

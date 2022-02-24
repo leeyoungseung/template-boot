@@ -34,7 +34,7 @@
     <div class="board-read-header">
     <h2>Board [ [[${board.no}]] ] View</h2>
     <hr/>
-    Title : [[${board.title}]] / Writer's-id : [[${board.memberNo}]]
+    Title : [[${board.title}]] / Writer's-id : [[${board.memberId}]]
     <hr/>
     Created DateTime : [[${board.createdTime}]] | Last Updated DateTime : [[${board.updatedTime}]]
     </div>
@@ -45,8 +45,8 @@
 </div>
 <div>
 <button type="button" onclick="location.href='/board/list'">Back to List</button>
-<button type="button" th:onclick="'location.href=\'' + @{/board/update/{no}(no=${board.no})} +'\';'">Update</button>
-<button type="button" th:onclick="'location.href=\'' + @{/board/delete/{no}(no=${board.no})} +'\';'">Delete</button>
+<button th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/update/{no}(no=${board.no})} +'\';'">Update</button>
+<button th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/delete/{no}(no=${board.no})} +'\';'">Delete</button>
 </div>
 </body>
 </html>

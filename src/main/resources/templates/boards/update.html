@@ -35,6 +35,7 @@
     <div>
     
     <form method="post" th:action=@{/board/update/}+${board.no}>
+    <input th:if="${not #strings.isEmpty(session?.member?.memberId)}" type="hidden" name="memberId" th:value="${session.member.memberId}" />
     <div class="board-read-header">
    
     <label> Type : </label>

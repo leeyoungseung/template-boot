@@ -35,6 +35,7 @@
     <div>
     
     <form method="post" th:action=@{/board/delete/}>
+    <input th:if="${not #strings.isEmpty(session?.member?.memberId)}" type="hidden" name="memberId" th:value="${session.member.memberId}" />
     <div class="board-read-header">
     Do you Really want to delete contents ?? <br/>
     【Title】 -> [[${board.title}]]

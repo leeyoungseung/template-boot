@@ -32,8 +32,8 @@ public class Board {
 	@Column(name = "contents")
 	private String contents;
 	
-	@Column(name = "member_no")
-	private Integer memberNo;
+	@Column(name = "member_id")
+	private String memberId;
 	
 	@Column(name = "created_time")
 	private Date createdTime;
