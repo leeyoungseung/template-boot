@@ -117,7 +117,10 @@ public class BoardController {
 	
 	
 	@RequestMapping(method = RequestMethod.POST, path = "delete")
-	public String deleteCompleteBoard(@RequestParam(name = "no", required = true) int no, @RequestParam(name = "memberId", required = false, value = "") String memberId, Model model) {
+	public String deleteCompleteBoard(@RequestParam(name = "no", required = true) int no,
+			@RequestParam(name = "memberId", required = false, value = "") String memberId, 
+			Model model) {
+		
 		try {
 			boardService.deleteBoard(no, memberId);
 			
