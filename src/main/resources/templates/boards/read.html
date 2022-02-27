@@ -22,8 +22,48 @@
     border-right: 1px solid #ddd;
     height: 300px;
 }
+.reply-container {
+    margin-top: 20px;
+    background-color: white;
+    border: 1px solid;
+    width: 700px;
+}
+#reply-header {
+    margin: 10px 10px 10px 10px;
+    margin-bottom: 20px;
+    background-color: white;
+    width: 650px;
+}
+#reply-body {
+    margin-bottom: 20px;
+    background-color: white;
+    width: 650px;
+}
+#reply-footer {
+    margin-bottom: 20px;
+    background-color: white;
+    width: 650px;
+}
 
+.reply-footer-form-elements {
+    display: flex;
+}
+
+.reply-footer-form-contents {
+    margin: 10px 10px 10px 10px;
+    border-right: 1px solid #ddd;
+    width: 650px;
+    height: 100px;
+}
+
+textarea {
+    width: 90%;
+    height: 6.25em;
+    border: 1px solid;
+    resize: none;
+}
 </style>
+<script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
 
 </head>
 <body>
@@ -48,5 +88,246 @@
 <button th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/update/{no}(no=${board.no})} +'\';'">Update</button>
 <button th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/delete/{no}(no=${board.no})} +'\';'">Delete</button>
 </div>
+<div class="reply-container">
+    <div id="reply-header">
+        
+    </div>
+    <hr/>
+    <div id="reply-body" >
+    </div>
+    <hr/>
+    <div id="reply-footer">
+        <div  th:if="${#strings.isEmpty(session?.member?.memberId)}" class="reply-footer-default">
+            <label><a th:href="@{/auth/login}">Please login to reply.</a></label>
+        </div>
+        <div th:if="${not #strings.isEmpty(session?.member?.memberId)}" class="reply-footer-form">
+            <form id="reply-form">
+            
+                <div class="reply-footer-form-elements">
+                    <div class="reply-footer-form-contents">
+                        <textarea id="reply-contents" placeholder="Input Reply contents"></textarea>
+                    </div>
+                    <button type="button" id="reply-form-submit">Join Reply</button>
+                </div>
+            </form>
+        </div>
+        
+    </div>
+</div>
+<script th:inline="javascript">
+
+var replyApi = "http://localhost:8090/reply"
+/*<![CDATA[*/
+var boardNo = /*[[ ${board.no} ]]*/ "";
+var memberId = /*[[ ${session?.member?.memberId} ]]*/ "";
+/*]]*/
+
+
+// validation check
+function validation(method, targetContents, targetMemberId) {
+	if (targetContents == "") {
+		alert("Reply content is empty!!");
+		return false;
+	}
+	if (boardNo == "") {
+		alert("Board Number is empty!!");
+		return false;
+	}
+	if (method == 'c') {
+		if (memberId == "") {
+			alert("Please Login");
+			return false;
+		}
+	} else if (method == 'u' || method == 'd') {
+		if (memberId == "" || memberId != targetMemberId) {
+			alert("Please Login memberId : "+memberId+", targetMemberId : "+targetMemberId);
+			return false;
+		}
+	}
+	
+	return true;
+}
+
+
+// create reply
+$(document).on("click", '#reply-form-submit', function() {
+	var contents = $("#reply-contents").val();
+	
+	if (!validation('c', contents, '')) {
+		return;
+	}
+	
+	var newReply = {
+			"contents": contents,
+			"boardNo" : parseInt(boardNo),
+			"memberId": memberId
+	}
+
+	$.ajax({
+		url: replyApi,
+		method : 'POST',
+		contentType : 'application/json; charset=UTF-8',
+		data: JSON.stringify(newReply),
+		success :  function(res){
+			alert(JSON.stringify(res));
+			clearReplyInput();
+			viewReplies();
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	      alert(error)
+	    }
+	});
+});
+
+
+// clear reply
+function clearReplyInput() {
+	$("#reply-contents").val('');
+}
+
+
+// view replies
+function viewReplies() {
+	$.ajax({
+		url: replyApi+'/list/'+boardNo,
+		method : 'GET',
+		dataType: 'json',
+		success :  function(res){
+			console.log(JSON.stringify(res.data))
+			makeRepliesView(res.data);
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	    }
+	});
+}
+
+
+function makeRepliesView(replies){
+	$("#reply-body").empty();
+	var view = '';
+	
+	replies.forEach(function (reply){
+		view = view + '<hr/><div>';
+		view = view + '<form>';
+		view = view + '<div>Writer : <span id="reply-memberId_'+reply.no+'" value='+reply.memberId+'>'+reply.memberId+'</span></div>';
+		view = view + '<div> Create Datetime : <span id="reply-createDate['+reply.no+']">'+reply.createdTime+'</span></div>';
+		
+		if (reply.memberId == memberId) {
+			view = view + '<div><textarea id="reply-contents_'+reply.no+'" value='+reply.contents+' name="contents">'+reply.contents+'</textarea></div>';
+			view = view + '<div><input type="hidden" name="memberId" value="'+reply.memberId+'"></div>';
+			view = view + '<div><input type="hidden" name="no" value="'+reply.no+'"></div>';
+			view = view + '<div><input type="button" class="reply-update" value="Reply Update" onclick="updateReply(this.form);">&nbsp';
+			view = view + '<input type="button" class="reply-delete" value="Reply Delete" onclick="deleteReply(this.form);"></div>';
+		} else {
+			view = view + '<div><textarea id="reply-contents_'+reply.no+'" readonly="readonly" value='+reply.contents+'>'+reply.contents+'</textarea></div>';
+		}
+		
+		view = view + '</form>';
+		view = view + '</div>';
+	})
+	
+	console.log(view);
+	$("#reply-body").html(view);
+	
+	var replyCountView = '';
+	if (0 < replies.length) {
+		replyCountView = '<p>Reply '+replies.length+'</p>';
+	} else {
+		replyCountView = '<p>Not Exist Reply</p>';
+	}
+	
+	$("#reply-header").html(replyCountView);
+	
+	
+}
+
+
+// When page loading, it requests data of reply to API.
+$(document).ready(function() {
+	viewReplies();
+});
+
+
+// update reply
+function updateReply(form) {
+	
+	var replyNo = form.no.value;
+	var targetContents = form.contents.value;
+	var targetMemberId = form.memberId.value;
+	
+	if (!validation('u', targetContents, targetMemberId)) {
+		return;
+	}
+	
+	var updateReply = {
+			"replyNo" : parseInt(replyNo),
+			"contents": targetContents,
+			"boardNo" : parseInt(boardNo),
+			"memberId": targetMemberId
+	}
+	
+	console.log("Request data : "+JSON.stringify(updateReply))
+	
+	$.ajax({
+		url: replyApi+'/'+replyNo,
+		method : 'PUT',
+		contentType : 'application/json; charset=UTF-8',
+		data: JSON.stringify(updateReply),
+		success :  function(res){
+			alert(res.message+' Update Reply['+replyNo+']');
+			viewReplies();
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	      alert(error)
+	    }
+	});
+}
+
+
+// delete reply
+function deleteReply(form) {
+	
+	var checkFromUser = confirm('Do you really want to delete this Reply');
+	
+	if (checkFromUser == false) {
+		return false;
+	}
+	
+	var replyNo = form.no.value;
+	var targetContents = form.contents.value;
+	var targetMemberId = form.memberId.value;
+	
+	if (!validation('u', targetContents, targetMemberId)) {
+		return;
+	}
+	
+	console.log(replyApi+'/'+replyNo+'?boardNo='+boardNo+'&memberId='+memberId)
+	
+	$.ajax({
+		url: replyApi+'/'+replyNo+'?boardNo='+boardNo+'&memberId='+memberId,
+		method : 'DELETE',
+		success :  function(res){
+			alert(JSON.stringify(res.message+' Delete Reply'));
+			viewReplies();
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	      alert(error)
+	    }
+	});
+}
+
+</script>
 </body>
 </html>

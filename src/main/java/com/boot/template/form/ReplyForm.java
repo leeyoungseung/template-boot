@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class ReplyForm {
 
-	private Integer no;
+	private Integer replyNo;
 	
 	@NotBlank(message = "Please input contents")
 	private String contents;
@@ -29,7 +29,7 @@ public class ReplyForm {
 	
 	public Reply toEntity() {
 		Reply reply = new Reply();
-		if (no != null) reply.setNo(no);
+		if (replyNo != null) reply.setNo(replyNo);
 		reply.setContents(contents);
 		reply.setBoardNo(boardNo);
 		reply.setMemberId(memberId);
