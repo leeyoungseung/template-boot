@@ -21,7 +21,8 @@ public class Board {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer no;
+	@Column(name = "board_no")
+	private Integer boardNo;
 	
 	@Column(name = "type")
 	private Integer type;

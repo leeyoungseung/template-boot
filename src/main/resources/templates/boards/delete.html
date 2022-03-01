@@ -42,7 +42,7 @@
     </div>
  
     <hr/>
-    <input type="hidden" name="no" th:value=${board.no}>
+    <input type="hidden" name="boardNo" th:value=${board.boardNo}>
     <div class="btn complete">
     <input type="submit" value="Delete Complete">
     </div>
@@ -53,7 +53,7 @@
 <button type="button" onclick="location.href='/board/list'">Back to List</button>
 </div>
 <div>
-<button type="button" th:onclick="'location.href=\'' + @{/board/read/{no}(no=${board.no})} +'\';'">Back to [[${board.no}]]</button>
+<button type="button" th:onclick="'location.href=\'' + @{/board/read/{boardNo}(boardNo=${board.boardNo})} +'\';'">Back to [[${board.boardNo}]]</button>
 </div>
 
 </body>

@@ -27,10 +27,10 @@ public class BoardController {
 	}
 	
 	
-	@RequestMapping(method = RequestMethod.GET, path = "read/{no}")
-	public String viewBoardOne(@PathVariable int no, Model model) {
+	@RequestMapping(method = RequestMethod.GET, path = "read/{boardNo}")
+	public String viewBoardOne(@PathVariable int boardNo, Model model) {
 		
-		model.addAttribute("board", boardService.getBoard(no));
+		model.addAttribute("board", boardService.getBoard(boardNo));
 
 		return "boards/read";
 	}
@@ -49,7 +49,7 @@ public class BoardController {
 	public String writeCompleteBoard(BoardForm form, Model model) {
 		Integer no = null;
 		try {
-			no = boardService.createBoard(form.makeEntity()).getNo();
+			no = boardService.createBoard(form.makeEntity()).getBoardNo();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -66,50 +66,50 @@ public class BoardController {
 	}
 	
 	
-	@RequestMapping(method = RequestMethod.GET, path = "update/{no}")
-	public String updateBoard(@PathVariable int no, Model model) {
+	@RequestMapping(method = RequestMethod.GET, path = "update/{boardNo}")
+	public String updateBoard(@PathVariable int boardNo, Model model) {
 		try {
 			
-			boardService.updateBoardForm(no, model);
+			boardService.updateBoardForm(boardNo, model);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("error", "Not exist data");
-			return "redirect:/board/read/"+no;
+			return "redirect:/board/read/"+boardNo;
 		}
 		
 		return "boards/update";
 	}
 	
 	
-	@RequestMapping(method = RequestMethod.POST, path = "update/{no}")
-	public String updateCompleteBoard(@PathVariable int no, BoardForm form,  Model model) {
+	@RequestMapping(method = RequestMethod.POST, path = "update/{boardNo}")
+	public String updateCompleteBoard(@PathVariable int boardNo, BoardForm form,  Model model) {
 		try {
 			System.out.println("updateBoard Param : "+form.toString());
-			boardService.updateBoard(no, form.makeEntity());
+			boardService.updateBoard(boardNo, form.makeEntity());
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("message", "Not exist data");
-			model.addAttribute("nextUrl", "/board/read/"+no);
+			model.addAttribute("nextUrl", "/board/read/"+boardNo);
 			
 			return "/common/message";
 		}
 		
 		model.addAttribute("message", "Update Success");
-		return "redirect:/board/read/"+no;
+		return "redirect:/board/read/"+boardNo;
 	}
 	
 	
-	@RequestMapping(method = RequestMethod.GET, path = "delete/{no}")
-	public String deleteBoard(@PathVariable int no, Model model) {
+	@RequestMapping(method = RequestMethod.GET, path = "delete/{boardNo}")
+	public String deleteBoard(@PathVariable int boardNo, Model model) {
 		try {
-			model.addAttribute("board", boardService.getBoard(no));
+			model.addAttribute("board", boardService.getBoard(boardNo));
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("error", "Not exist data");
-			return "redirect:/board/read/"+no;
+			return "redirect:/board/read/"+boardNo;
 		}
 		
 		return "boards/delete";
@@ -117,17 +117,17 @@ public class BoardController {
 	
 	
 	@RequestMapping(method = RequestMethod.POST, path = "delete")
-	public String deleteCompleteBoard(@RequestParam(name = "no", required = true) int no,
+	public String deleteCompleteBoard(@RequestParam(name = "boardNo", required = true) int boardNo,
 			@RequestParam(name = "memberId", required = false, value = "") String memberId, 
 			Model model) {
 		
 		try {
-			boardService.deleteBoard(no, memberId);
+			boardService.deleteBoard(boardNo, memberId);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 			model.addAttribute("error", "Not exist data or Unmatched MemberId");
-			return "redirect:/board/read/"+no;
+			return "redirect:/board/read/"+boardNo;
 		}
 		
 		model.addAttribute("message", "Delete Success");

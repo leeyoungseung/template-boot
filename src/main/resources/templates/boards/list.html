@@ -26,7 +26,7 @@
     <div>
     <table border="1">
     <tr>
-        <th>No</th>
+        <th>Board No</th>
         <th>Contents Type</th>
         <th>Title</th>
         <th>CreatedTime</th>
@@ -35,9 +35,9 @@
         <th>Counts</th>
     </tr>
     <tr th:each="board: ${boards}">
-        <td th:text="${board.no}"></td>
+        <td th:text="${board.boardNo}"></td>
         <td th:text="${board.type}==1 ? 'Normal' : 'MemberShip'"></td>
-        <td><a th:href="@{/board/read/{no}(no=${board.no})}">[[${board.title}]]</a></td>
+        <td><a th:href="@{/board/read/{boardNo}(boardNo=${board.boardNo})}">[[${board.title}]]</a></td>
         <td th:text="${board.createdTime}"></td>
         <td th:text="${board.updatedTime}"></td>
         <td th:text="${board.likes}"></td>

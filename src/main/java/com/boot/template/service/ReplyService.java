@@ -30,7 +30,7 @@ public class ReplyService {
 	public List<Reply>getReplyAllByBoardNo(int boardNo) throws Exception {
 		
 		// exist board data of parameter?
-		if (boardRepository.findByNo(boardNo).isEmpty()) {
+		if (boardRepository.findByBoardNo(boardNo).isEmpty()) {
 			throw new Exception("Not exist Board data!!");
 		}
 		
@@ -69,15 +69,15 @@ public class ReplyService {
 	
 	// update reply
 	@Transactional
-	public boolean updateReply(Integer no, Reply updateReply) {
+	public boolean updateReply(Integer replyNo, Reply updateReply) {
 		try {
 			
-			Reply reply = replyRepository.findById(no)
-					.orElseThrow(() -> new Exception("Not exist Reply Data by no : ["+no+"]"));
+			Reply reply = replyRepository.findById(replyNo)
+					.orElseThrow(() -> new Exception("Not exist Reply Data by no : ["+replyNo+"]"));
 			
 			// exist reply data and match data?
-			if (no == null || no != updateReply.getNo() || reply == null) {
-				throw new Exception("Unmatch replyNo=["+no+"]-["+updateReply.getNo()+"] OR Not exist Reply Data!!"+reply.toString());
+			if (replyNo == null || replyNo != updateReply.getReplyNo() || reply == null) {
+				throw new Exception("Unmatch replyNo=["+replyNo+"]-["+updateReply.getReplyNo()+"] OR Not exist Reply Data!!"+reply.toString());
 			}
 			
 			if (reply.getBoardNo() == null 
@@ -109,14 +109,14 @@ public class ReplyService {
 	
 	
 	// delete reply 
-	public boolean deleteReply(Integer no, Integer boardNo, String memberId) {
+	public boolean deleteReply(Integer replyNo, Integer boardNo, String memberId) {
 		try {
 			
-			Reply reply = replyRepository.findById(no)
-					.orElseThrow(() -> new Exception("Not exist Reply Data by no : ["+no+"]"));
+			Reply reply = replyRepository.findById(replyNo)
+					.orElseThrow(() -> new Exception("Not exist Reply Data by replyNo : ["+replyNo+"]"));
 			
 			// exist reply data and match data?
-			if (no == null || reply == null) {
+			if (replyNo == null || reply == null) {
 				throw new Exception("Already deleted Reply Data!!");
 			}
 			

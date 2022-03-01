@@ -72,7 +72,7 @@ textarea {
 	    [[${message}]]	
 	</div>
     <div class="board-read-header">
-    <h2>Board [ [[${board.no}]] ] View</h2>
+    <h2>Board [ [[${board.boardNo}]] ] View</h2>
     <hr/>
     Title : [[${board.title}]] / Writer's-id : [[${board.memberId}]]
     <hr/>
@@ -85,8 +85,8 @@ textarea {
 </div>
 <div>
 <button type="button" onclick="location.href='/board/list'">Back to List</button>
-<button th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/update/{no}(no=${board.no})} +'\';'">Update</button>
-<button th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/delete/{no}(no=${board.no})} +'\';'">Delete</button>
+<button th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/update/{boardNo}(boardNo=${board.boardNo})} +'\';'">Update</button>
+<button th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/delete/{boardNo}(boardNo=${board.boardNo})} +'\';'">Delete</button>
 </div>
 <div class="reply-container">
     <div id="reply-header">
@@ -118,7 +118,7 @@ textarea {
 
 var replyApi = "http://localhost:8090/reply"
 /*<![CDATA[*/
-var boardNo = /*[[ ${board.no} ]]*/ "";
+var boardNo = /*[[ ${board.boardNo} ]]*/ "";
 var memberId = /*[[ ${session?.member?.memberId} ]]*/ "";
 /*]]*/
 
@@ -215,17 +215,17 @@ function makeRepliesView(replies){
 	replies.forEach(function (reply){
 		view = view + '<hr/><div>';
 		view = view + '<form>';
-		view = view + '<div>Writer : <span id="reply-memberId_'+reply.no+'" value='+reply.memberId+'>'+reply.memberId+'</span></div>';
-		view = view + '<div> Create Datetime : <span id="reply-createDate['+reply.no+']">'+reply.createdTime+'</span></div>';
+		view = view + '<div>Writer : <span id="reply-memberId_'+reply.replyNo+'" value='+reply.memberId+'>'+reply.memberId+'</span></div>';
+		view = view + '<div> Create Datetime : <span id="reply-createDate['+reply.replyNo+']">'+reply.createdTime+'</span></div>';
 		
 		if (reply.memberId == memberId) {
-			view = view + '<div><textarea id="reply-contents_'+reply.no+'" value='+reply.contents+' name="contents">'+reply.contents+'</textarea></div>';
+			view = view + '<div><textarea id="reply-contents_'+reply.replyNo+'" value='+reply.contents+' name="contents">'+reply.contents+'</textarea></div>';
 			view = view + '<div><input type="hidden" name="memberId" value="'+reply.memberId+'"></div>';
-			view = view + '<div><input type="hidden" name="no" value="'+reply.no+'"></div>';
+			view = view + '<div><input type="hidden" name="replyNo" value="'+reply.replyNo+'"></div>';
 			view = view + '<div><input type="button" class="reply-update" value="Reply Update" onclick="updateReply(this.form);">&nbsp';
 			view = view + '<input type="button" class="reply-delete" value="Reply Delete" onclick="deleteReply(this.form);"></div>';
 		} else {
-			view = view + '<div><textarea id="reply-contents_'+reply.no+'" readonly="readonly" value='+reply.contents+'>'+reply.contents+'</textarea></div>';
+			view = view + '<div><textarea id="reply-contents_'+reply.replyNo+'" readonly="readonly" value='+reply.contents+'>'+reply.contents+'</textarea></div>';
 		}
 		
 		view = view + '</form>';

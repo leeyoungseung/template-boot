@@ -18,7 +18,8 @@ public class Reply {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer no;
+	@Column(name = "reply_no")
+	private Integer replyNo;
 	
 	@Column(name = "contents")
 	private String contents;

@@ -39,9 +39,7 @@ public class ReplyController {
 	public ResponseEntity<?> viewReplyListByBoardNo(
 			@PathVariable(required = true) int boardNo) {
 		
-		ResponseDto resultDto = null;
 		List<Reply> replyList = null;
-		
 		
 		try {
 			replyList = replyService.getReplyAllByBoardNo(boardNo);
@@ -58,13 +56,13 @@ public class ReplyController {
 						);
 			} 
 			
-			resultDto = ResponseDto.builder()
+			
+			return ResponseEntity.ok(ResponseDto.builder()
 					.resultCode(ResponseInfo.SUCCESS.getResultCode())
 					.message(ResponseInfo.SUCCESS.getMessage())
 					.data(replyList)
-					.build();
-			
-			return ResponseEntity.ok(resultDto);
+					.build()
+					);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -114,11 +112,11 @@ public class ReplyController {
 	}
 	
 	
-	@PutMapping(path = "/{no}")
+	@PutMapping(path = "/{replyNo}")
 	public ResponseEntity<?> updateReply(
 			@Validated @RequestBody ReplyForm form,
 			BindingResult bindingResult,
-			@PathVariable(required = true) Integer no) {
+			@PathVariable(required = true) Integer replyNo) {
 		
 		
 		if (bindingResult.hasErrors()) {
@@ -137,7 +135,7 @@ public class ReplyController {
 		}
 		
 		
-		if (replyService.updateReply(no, form.toEntity())) {
+		if (replyService.updateReply(replyNo, form.toEntity())) {
 			return ResponseEntity.ok(ResponseDto.builder()
 					.resultCode(ResponseInfo.SUCCESS.getResultCode())
 					.message(ResponseInfo.SUCCESS.getMessage())
@@ -156,16 +154,13 @@ public class ReplyController {
 	}
 	
 	
-	@DeleteMapping(path = "/{no}")
-	public ResponseEntity<?> deleteReply(@PathVariable(required = true) Integer no,
+	@DeleteMapping(path = "/{replyNo}")
+	public ResponseEntity<?> deleteReply(@PathVariable(required = true) Integer replyNo,
 			@RequestParam(name = "boardNo", required = false) Integer boardNo,
 			@RequestParam(name = "memberId", required = false, value = "") String memberId) {
-		ResponseDto resultDto = null;
 		
-		
-		if (replyService.deleteReply(no, boardNo, memberId)) {
-			return ResponseEntity.ok(
-					resultDto = ResponseDto.builder()
+		if (replyService.deleteReply(replyNo, boardNo, memberId)) {
+			return ResponseEntity.ok(ResponseDto.builder()
 					.resultCode(ResponseInfo.SUCCESS.getResultCode())
 					.message(ResponseInfo.SUCCESS.getMessage())
 					.data(new Boolean(true))
@@ -174,8 +169,7 @@ public class ReplyController {
 		}
 		
 		
-		return ResponseEntity.ok(
-				resultDto = ResponseDto.builder()
+		return ResponseEntity.ok(ResponseDto.builder()
 				.resultCode(ResponseInfo.SERVER_ERROR.getResultCode())
 				.message(ResponseInfo.SERVER_ERROR.getMessage())
 				.data(new Boolean(false))

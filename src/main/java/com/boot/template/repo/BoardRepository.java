@@ -8,6 +8,6 @@ import com.boot.template.entity.Board;
 
 public interface BoardRepository extends JpaRepository<Board, Integer> {
 	
-	Optional<Board> findByNo(Integer no);
+	Optional<Board> findByBoardNo(Integer boardNo);
 
 }

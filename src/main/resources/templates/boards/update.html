@@ -34,7 +34,7 @@
     <h2>Update Board</h2>
     <div>
     
-    <form method="post" th:action=@{/board/update/}+${board.no}>
+    <form method="post" th:action=@{/board/update/}+${board.boardNo}>
     <input th:if="${not #strings.isEmpty(session?.member?.memberId)}" type="hidden" name="memberId" th:value="${session.member.memberId}" />
     <div class="board-read-header">
    
@@ -62,7 +62,7 @@
 <button type="button" onclick="location.href='/board/list'">Back to List</button>
 </div>
 <div>
-<button type="button" th:onclick="'location.href=\'' + @{/board/read/{no}(no=${board.no})} +'\';'">Back to [[${board.no}]]</button>
+<button type="button" th:onclick="'location.href=\'' + @{/board/read/{boardNo}(boardNo=${board.boardNo})} +'\';'">Back to [[${board.boardNo}]]</button>
 </div>
 
 </body>

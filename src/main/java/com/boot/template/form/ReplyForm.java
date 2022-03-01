@@ -29,7 +29,7 @@ public class ReplyForm {
 	
 	public Reply toEntity() {
 		Reply reply = new Reply();
-		if (replyNo != null) reply.setNo(replyNo);
+		if (replyNo != null) reply.setReplyNo(replyNo);
 		reply.setContents(contents);
 		reply.setBoardNo(boardNo);
 		reply.setMemberId(memberId);
