@@ -62,6 +62,11 @@ textarea {
     border: 1px solid;
     resize: none;
 }
+
+.likeImg-board {
+    width: 2em;
+    height: 2em;
+}
 </style>
 <script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
 
@@ -73,6 +78,10 @@ textarea {
 	</div>
     <div class="board-read-header">
     <h2>Board [ [[${board.boardNo}]] ] View</h2>
+    <div class="like-box-board">
+        <label id="likeCount">0</label> <a><img class="likeImg-board" th:src="@{/images/like.png}" th:value="like"></a> &nbsp;&nbsp;
+        <label id="dislikeCount">0</label> <a><img class="likeImg-board" th:src="@{/images/dislike.png}" th:value="dislike"></a>
+    </div>
     <hr/>
     Title : [[${board.title}]] / Writer's-id : [[${board.memberId}]]
     <hr/>
@@ -116,7 +125,10 @@ textarea {
 </div>
 <script th:inline="javascript">
 
-var replyApi = "http://localhost:8090/reply"
+var baseApi  = "http://localhost:8090"
+var replyApi = baseApi+"/reply"
+var likeApi = baseApi+"/like"
+
 /*<![CDATA[*/
 var boardNo = /*[[ ${board.boardNo} ]]*/ "";
 var memberId = /*[[ ${session?.member?.memberId} ]]*/ "";
@@ -251,6 +263,7 @@ function makeRepliesView(replies){
 // When page loading, it requests data of reply to API.
 $(document).ready(function() {
 	viewReplies();
+	viewLikeAndDislikeCount("board");
 });
 
 
@@ -318,6 +331,91 @@ function deleteReply(form) {
 		success :  function(res){
 			alert(JSON.stringify(res.message+' Delete Reply'));
 			viewReplies();
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	      alert(error)
+	    }
+	});
+}
+
+
+// view board like
+function viewLikeAndDislikeCount(targetType) {
+	var likeApiGet = "";
+	if ( !memberId ) {
+		likeApiGet = likeApi+'?targetType='+targetType+'&targetNo='+boardNo;
+	} else {
+		likeApiGet = likeApi+'?targetType='+targetType+'&targetNo='+boardNo+'&memberId='+memberId;
+	}
+	
+	$.ajax({
+		url: likeApiGet,
+		method : 'GET',
+		dataType: 'json',
+		success :  function(res){
+			console.log(JSON.stringify(res.data))
+			makeLikeAndDislikeCountView(res.data);
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	    }
+	});
+}
+
+function makeLikeAndDislikeCountView(data) {
+	//alert(JSON.stringify(data))
+	$("#likeCount").text(data.likeCount)
+	$("#dislikeCount").text(data.dislikeCount)
+}
+
+
+//create or update board like
+$(document).on("click", '.likeImg-board', function() {
+	createOrUpdateLike($(this).attr('value'), 'board', parseInt(boardNo));
+});
+
+function createOrUpdateLike(status, type, typeNo) {
+	
+	var likeStatus = false
+	if (status === 'like') {
+		likeStatus = true;
+		
+	} else if (status === 'dislike') {
+		likeStatus = false;
+		
+	} else {
+		alert("function error");
+		return;
+	}
+	
+	if ( !memberId ) {
+		alert("Please do login. like fuction can be used by login user only.");
+		return;
+	} 
+	
+	
+	var likeObj = {
+			"likeStatus" : likeStatus,
+			"likeType": type,
+			"typeNo" : typeNo,
+			"memberId": memberId
+	}
+	
+	console.log("createOrUpdateLike Request data : "+JSON.stringify(updateReply))
+	
+	$.ajax({
+		url: likeApi,
+		method : 'POST',
+		contentType : 'application/json; charset=UTF-8',
+		data: JSON.stringify(likeObj),
+		success :  function(res){
+			alert(res.message+' Update Like : ['+typeNo+']');
+			viewLikeAndDislikeCount(type);
 		},
 	    error: function(xhr, textStatus, error){
 	      console.log(xhr.statusText);

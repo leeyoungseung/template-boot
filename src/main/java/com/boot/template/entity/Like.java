@@ -12,23 +12,20 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "reply")
+@Table(name = "likes")
 @Data
-public class Reply {
-	
+public class Like {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "reply_no")
-	private Integer replyNo;
+	@Column(name = "likes_no")
+	private Integer likeNo;
 	
-	@Column(name = "contents")
-	private String contents;
+	@Column(name = "likes_status")
+	private boolean likeStatus;
 	
-	@Column(name = "board_no")
-	private Integer boardNo;
-	
-	@Column(name = "member_id")
-	private String memberId;
+	@Column(name = "likes_type")
+	private String likeType;
 	
 	@Column(name = "created_time")
 	private Date createdTime;
@@ -36,10 +33,14 @@ public class Reply {
 	@Column(name = "updated_time")
 	private Date updatedTime;
 	
-	@Column(name = "likes")
-	private Integer likes;
+	@Column(name = "board_no")
+	private Integer boardNo;
 	
-	@Column(name = "dis_likes")
-	private Integer dislikes;
-
+	@Column(name = "reply_no")
+	private Integer replyNo;
+	
+	@Column(name = "member_id")
+	private String memberId;
+	
+	
 }

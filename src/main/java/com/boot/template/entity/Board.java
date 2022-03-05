@@ -45,6 +45,9 @@ public class Board {
 	@Column(name = "likes")
 	private Integer likes;
 	
+	@Column(name = "dis_likes")
+	private Integer dislikes;
+	
 	@Column(name = "counts")
 	private Integer counts;
 	
