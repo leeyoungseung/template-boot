@@ -69,6 +69,34 @@ public class LikeService {
 			like.setUpdatedTime(new Date());
 			
 			likeRepository.save(like);
+			
+			if (like.getLikeType().equals(LikeType.BOARD.value)) {
+				Board board = boardRepository.getById(like.getBoardNo());
+				if (like.isLikeStatus()) {
+					board.setLikes(1);
+				} else {
+					board.setDislikes(1);
+				}
+				
+				board.setUpdatedTime(new Date());
+				boardRepository.save(board);
+				
+			} else if (like.getLikeType().equals(LikeType.REPLY.value)) {
+				Reply reply = replyRepository.getById(like.getReplyNo());
+				if (like.isLikeStatus()) {
+					reply.setLikes(1);
+				} else {
+					reply.setDislikes(1);
+				}
+				
+				reply.setUpdatedTime(new Date());
+				replyRepository.save(reply);
+				
+			} else {
+				throw new Exception("Not Exist Data!! ["+like.toString()+"]");
+			}
+			
+			
 			return true;
 			
 		} else {
@@ -140,11 +168,11 @@ public class LikeService {
 					
 					if (like.isLikeStatus()) { // origin is false.
 						board.setLikes(board.getLikes() + 1);
-						board.setDislikes(board.getLikes() - 1);
+						board.setDislikes(board.getDislikes() - 1);
 						
 					} else { // origin is true.
 						board.setLikes(board.getLikes() - 1);
-						board.setDislikes(board.getLikes() + 1);
+						board.setDislikes(board.getDislikes() + 1);
 					}
 					
 					board.setUpdatedTime(new Date());
@@ -154,11 +182,11 @@ public class LikeService {
 					Reply reply = replyRepository.getById(like.getReplyNo());
 					if (like.isLikeStatus()) {
 						reply.setLikes(reply.getLikes() + 1);
-						reply.setDislikes(reply.getLikes() - 1);
+						reply.setDislikes(reply.getDislikes() - 1);
 						
 					} else {
 						reply.setLikes(reply.getLikes() - 1);
-						reply.setDislikes(reply.getLikes() + 1);
+						reply.setDislikes(reply.getDislikes() + 1);
 					}
 					
 					reply.setUpdatedTime(new Date());

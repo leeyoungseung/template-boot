@@ -67,6 +67,11 @@ textarea {
     width: 2em;
     height: 2em;
 }
+
+.likeImg-reply {
+    width: 1em;
+    height: 1em;
+}
 </style>
 <script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
 
@@ -227,7 +232,11 @@ function makeRepliesView(replies){
 	replies.forEach(function (reply){
 		view = view + '<hr/><div>';
 		view = view + '<form>';
-		view = view + '<div>Writer : <span id="reply-memberId_'+reply.replyNo+'" value='+reply.memberId+'>'+reply.memberId+'</span></div>';
+		view = view + '<div>Writer : <span id="reply-memberId_'+reply.replyNo+'" value='+reply.memberId+'>'+reply.memberId+'</span>';
+		view = view + '<div class="like-box-reply">';
+		view = view + '<label id="likeCount-reply-'+reply.replyNo+'">'+reply.likes+'</label> <a href="javascript:void(0);" onclick="doLikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/like.png" value="like"></a> &nbsp;&nbsp;';
+		view = view + '<label id="dislikeCount-reply-'+reply.replyNo+'">'+reply.dislikes+'</label> <a href="javascript:void(0);" onclick="doDislikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/dislike.png" value="dislike"></a>';
+		view = view + '</div></div>';
 		view = view + '<div> Create Datetime : <span id="reply-createDate['+reply.replyNo+']">'+reply.createdTime+'</span></div>';
 		
 		if (reply.memberId == memberId) {
@@ -415,7 +424,12 @@ function createOrUpdateLike(status, type, typeNo) {
 		data: JSON.stringify(likeObj),
 		success :  function(res){
 			alert(res.message+' Update Like : ['+typeNo+']');
-			viewLikeAndDislikeCount(type);
+			if (type === 'board') {
+				viewLikeAndDislikeCount(type);
+			} else if (type === 'reply') {
+				viewReplies();
+			}
+			
 		},
 	    error: function(xhr, textStatus, error){
 	      console.log(xhr.statusText);
@@ -424,6 +438,16 @@ function createOrUpdateLike(status, type, typeNo) {
 	      alert(error)
 	    }
 	});
+}
+
+
+function doLikeReply(replyNo) {
+	createOrUpdateLike('like', 'reply', parseInt(replyNo));
+}
+
+
+function doDislikeReply(replyNo) {
+	createOrUpdateLike('dislike', 'reply', parseInt(replyNo));
 }
 
 </script>
