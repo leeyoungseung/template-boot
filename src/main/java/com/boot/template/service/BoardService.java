@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +39,11 @@ public class BoardService {
 	}
 	
 	// get boards data
-	public List<Board> getAllBoard() {
-		return boardRepository.findAll();
+	public Page<Board> getAllBoard(Pageable pageable) {
+		int page = (pageable.getPageNumber() == 0) ? 0 : (pageable.getPageNumber() - 1);
+		pageable = PageRequest.of(page, 10);
+		
+		return boardRepository.findAll(pageable);
 	}
 	
 	// create board

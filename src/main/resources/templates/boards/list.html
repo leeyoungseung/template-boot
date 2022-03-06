@@ -10,6 +10,10 @@
   left: 70%;
 }
 
+.paging-element {
+    position: relative;
+    float: left;
+}
 </style>
 </head>
 <body>
@@ -34,7 +38,7 @@
         <th>Likes</th>
         <th>Counts</th>
     </tr>
-    <tr th:each="board: ${boards}">
+    <tr th:each="board: ${pageInfo.getContent()}">
         <td th:text="${board.boardNo}"></td>
         <td th:text="${board.type}==1 ? 'Normal' : 'MemberShip'"></td>
         <td><a th:href="@{/board/read/{boardNo}(boardNo=${board.boardNo})}">[[${board.title}]]</a></td>
@@ -44,6 +48,33 @@
         <td th:text="${board.counts}"></td>
     </tr>
     </table>
+    </div>
+    
+    <!-- paging -->
+    <div id="paging-container">
+        <div>
+            <div class="paging-element">
+                <span th:if="${pageInfo.first}">&lt;&lt;</span>
+                <a th:if="${not pageInfo.first}" th:href="@{/board/list(page=1)}">&lt;&lt;</a>
+                 &nbsp;&nbsp;
+            </div>
+           
+            <div class="paging-element" th:each="p : ${#numbers.sequence(1, (pageInfo.totalPages))}">
+                <!--  <span th:text="${p}+','"></span>  -->
+            
+                <span th:if="${p} == ${pageInfo.number+1}" th:text="'['+${p}+']&nbsp;'"></span>
+                <a th:if="${p} != ${pageInfo.number+1}" th:href="@{/board/list(page=${p})}">
+                    <span th:text="'['+${p}+']'"></span>&nbsp;&nbsp;
+                </a>
+
+            </div>
+            
+            <div class="paging-element">
+                &nbsp;&nbsp;
+                <span th:if="${pageInfo.last}">&gt;&gt;</span>
+                <a th:if="${not pageInfo.last}" th:href="@{/board/list(page=(${pageInfo.totalPages}))}">&gt;&gt;</a>
+            </div>
+        </div>
     </div>
 </div>
 </body>

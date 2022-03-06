@@ -1,6 +1,8 @@
 package com.boot.template.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.boot.template.entity.Board;
 import com.boot.template.form.BoardForm;
 import com.boot.template.service.BoardService;
 
@@ -19,9 +22,17 @@ public class BoardController {
 	BoardService boardService;
 	
 	@RequestMapping(method = RequestMethod.GET, path = "list")
-	public String viewBoardList(Model model) {
+	public String viewBoardList(Model model, Pageable pageable) {
 		
-		model.addAttribute("boards", boardService.getAllBoard());
+		Page<Board> pageInfo = boardService.getAllBoard(pageable);
+//		System.out.println("viewBoardList"+pageInfo.toString());
+//		System.out.println("Number : "+pageInfo.getNumber());
+//		System.out.println("NumberOfElements : "+pageInfo.getNumberOfElements());
+//		System.out.println("TotalElements : "+pageInfo.getTotalElements());
+//		System.out.println("TotalPages : "+pageInfo.getTotalPages());
+//		System.out.println("Content : "+pageInfo.getContent().toString());
+		
+		model.addAttribute("pageInfo", pageInfo);
 		
 		return "boards/list";
 	}
