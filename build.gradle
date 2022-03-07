@@ -12,6 +12,8 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	
+	all*.exclude module : 'spring-boot-starter-logging'
 }
 
 repositories {
@@ -29,6 +31,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation group: 'org.webjars', name: 'jquery', version: '3.6.0'
+	
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 }
 
 tasks.named('test') {

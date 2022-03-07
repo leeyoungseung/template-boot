@@ -14,6 +14,9 @@ import com.boot.template.entity.Board;
 import com.boot.template.form.BoardForm;
 import com.boot.template.service.BoardService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Controller
 @RequestMapping(path = "/board")
 public class BoardController {
@@ -23,6 +26,8 @@ public class BoardController {
 	
 	@RequestMapping(method = RequestMethod.GET, path = "list")
 	public String viewBoardList(Model model, Pageable pageable) {
+		
+		log.info("PageNumber [{}], PageSize [{}] ", pageable.getPageNumber(), pageable.getPageSize());
 		
 		Page<Board> pageInfo = boardService.getAllBoard(pageable);
 //		System.out.println("viewBoardList"+pageInfo.toString());
