@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,15 @@ import org.springframework.ui.Model;
 import com.boot.template.entity.Board;
 import com.boot.template.entity.Member;
 import com.boot.template.enums.BoardType;
+import com.boot.template.exception.ProcFailureException;
+import com.boot.template.exception.UnvalidParamException;
 import com.boot.template.form.BoardTypeForm;
 import com.boot.template.repo.BoardRepository;
 import com.boot.template.repo.MemberRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class BoardService {
 	
@@ -63,38 +69,40 @@ public class BoardService {
 	}
 	
 	// create board
-	public Board createBoard(Board board) throws Exception {
+	public Board createBoard(Board board) {
 		
-		if (!validationBoardType(board)) {
-			throw new Exception("validationBoardType Error!!");
+		validationBoardType(board);
+		
+		if (true) {
+			throw new ProcFailureException("Failure Create Board");		
 		}
 		
 		return boardRepository.save(board);
 	}
 	
-	private boolean validationBoardType(Board board) throws Exception {
+	private void validationBoardType(Board board) {
 		
 		// is MemberShip Board?
 		if (board.getType() == BoardType.MEMBERSHIP.value) {
 			
 			// has MemberId from param?
 			if (board.getMemberId() == null || board.getMemberId().equals("")) {
-				throw new Exception("MemberId Null!!");
+				throw new UnvalidParamException("MemberId Null!!");
 			}
 			
 			// exist MemberId?
 			Optional<Member> data = memberRepository.findByMemberId(board.getMemberId());
 			if (data.isEmpty()) {
-				throw new Exception("MemberId Empty!!");
+				throw new NoSuchElementException("MemberId Empty!!");
 			}
 			
-			return true;
+			// Validation Ok
 			
 		} else if (board.getType() == BoardType.NORMAL.value) {
-			return true;
+			// Validation Ok
 			
 		} else {
-			return false;
+			throw new UnvalidParamException("Validation Board Type Error!!");
 		}
 		
 	}
@@ -104,14 +112,18 @@ public class BoardService {
 	public Board getBoard(Integer no) {
 		Optional<Board> board = boardRepository.findById(no);
 		
-		return board.isEmpty() ? null : board.get();
+		if (board.isEmpty()) {
+			throw new NoSuchElementException("Not exist Board !! ["+no+"]");
+		}
+		
+		return board.get();
 	}
 	
 	
-	public void updateBoardForm(int no, Model model) throws Exception {
+	public void updateBoardForm(int no, Model model) {
 		// exist data in DB?
 		Board board = boardRepository.findById(no)
-				.orElseThrow(() -> new Exception("Not exist Board Data by no : ["+no+"]"));
+				.orElseThrow(() -> new NoSuchElementException("Not exist Board Data by no : ["+no+"]"));
 		BoardTypeForm boardType1 = null;
 		BoardTypeForm boardType2 = null;
 		
@@ -131,18 +143,15 @@ public class BoardService {
 	// update board 
 	@Transactional
 	public Board updateBoard(
-			Integer no, Board updatedBoard) throws Exception {
+			Integer no, Board updatedBoard) {
 		
-		
-		if (!validationBoardType(updatedBoard)) {
-			throw new Exception("validationBoardType Error!!");
-		}
+		validationBoardType(updatedBoard);
 		
 		Board board = boardRepository.findById(no)
-				.orElseThrow(() -> new Exception("Not exist Board Data by no : ["+no+"]"));
+				.orElseThrow(() -> new NoSuchElementException("Not exist Board Data by no : ["+no+"]"));
 		
 		if (!board.getMemberId().equals(updatedBoard.getMemberId())) {
-			throw new Exception("Unmatch MemberId!!");
+			throw new UnvalidParamException("Unmatch MemberId!!");
 		}
 		
 		board.setType(updatedBoard.getType());
@@ -150,7 +159,7 @@ public class BoardService {
 		board.setContents(updatedBoard.getContents());
 		board.setUpdatedTime(new Date());
 		
-		System.out.println("updateBoard_data : "+board.toString());
+		log.info("updateBoard_data : "+board.toString());
 		
 		Board endUpdatedBoard = boardRepository.save(board);
 		return endUpdatedBoard;
@@ -158,12 +167,12 @@ public class BoardService {
 	
 	// delete board
 	public ResponseEntity<Map<String, Boolean>> deleteBoard(
-			Integer no, String memberId) throws Exception {
+			Integer no, String memberId) {
 		Board board = boardRepository.findById(no)
-				.orElseThrow(() -> new Exception("Not exist Board Data by no : ["+no+"]"));
+				.orElseThrow(() -> new NoSuchElementException("Not exist Board Data by no : ["+no+"]"));
 		
 		if (!board.getMemberId().equals(memberId)) {
-			throw new Exception("Unmatch MemberId!!");
+			throw new UnvalidParamException("Unmatch MemberId!!");
 		}
 		
 		boardRepository.delete(board);

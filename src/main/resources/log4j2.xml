@@ -31,4 +31,8 @@
             <AppenderRef ref="File" />
         </Root>
     </Loggers>
+    <Logger name="org.springframework" level="info" additivity="false" >
+      	<AppenderRef ref="console" />
+      	<AppenderRef ref="file" />
+    </Logger>
 </Configuration>

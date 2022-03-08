@@ -1,16 +1,26 @@
 package com.boot.template.controller;
 
+import java.util.NoSuchElementException;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.boot.template.entity.Board;
+import com.boot.template.exception.ProcFailureException;
+import com.boot.template.exception.UnvalidParamException;
 import com.boot.template.form.BoardForm;
 import com.boot.template.service.BoardService;
 
@@ -20,6 +30,81 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 @RequestMapping(path = "/board")
 public class BoardController {
+	
+	
+	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+	@ExceptionHandler
+	public ModelAndView processErrorHandler(HttpServletRequest req, Exception e) {
+		ModelAndView mav = new ModelAndView();
+		
+		String message = e.getMessage();
+		String redirectUrl = "/boards/list";
+		String view = "/common/error";
+		
+		mav.addObject("message", message);
+		mav.addObject("redirectUrl", redirectUrl);
+		mav.setViewName(view);
+		
+		log.error("processErrorHandler Message : {}, RedirectUrl : {}, View : {}", message, redirectUrl, view);
+		
+		return mav;
+	}
+	
+	
+	@ResponseStatus(value = HttpStatus.NOT_FOUND)
+	@ExceptionHandler
+	public ModelAndView notFoundErrorHandler(HttpServletRequest req, NoSuchElementException e) {
+		ModelAndView mav = new ModelAndView();
+		
+		String message = e.getMessage();
+		String redirectUrl = (req.getHeader("referer") == null ||req.getHeader("referer").isBlank()) ?  "boards/list" : req.getHeader("referer");
+		String view = "/common/error";
+		mav.addObject("message", message);
+		mav.addObject("redirectUrl", redirectUrl);
+		mav.setViewName(view);
+		
+		log.error("Message : {}, RedirectUrl : {}, View : {}", message, redirectUrl,  view);
+		
+		return mav;
+	}
+	
+	
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	@ExceptionHandler
+	public ModelAndView badRequestErrorHandler(HttpServletRequest req, UnvalidParamException e) {
+		ModelAndView mav = new ModelAndView();
+		
+		String message = e.getMessage();
+		String redirectUrl = (req.getHeader("referer") == null ||req.getHeader("referer").isBlank()) ?  "boards/list" : req.getHeader("referer");
+		String view = "/common/error";
+		
+		mav.addObject("message", message);
+		mav.addObject("redirectUrl", redirectUrl);
+		mav.setViewName(view);
+		
+		log.error("Message : {}, RedirectUrl : {}, View : {}", message, redirectUrl, view);
+		
+		return mav;
+	}
+	
+	
+	@ExceptionHandler
+	public ModelAndView procFailureErrorHandler(HttpServletRequest req, ProcFailureException e) {
+		ModelAndView mav = new ModelAndView();
+		
+		String message = e.getMessage();
+		String redirectUrl = (req.getHeader("referer") == null ||req.getHeader("referer").isBlank()) ?  "boards/list" : req.getHeader("referer");
+		String view = "/common/error";
+		
+		mav.addObject("message", message);
+		mav.addObject("redirectUrl", redirectUrl);
+		mav.setViewName(view);
+		
+		log.error("Message : {}, RedirectUrl : {}, View : {}", message, redirectUrl, view);
+		
+		return mav;
+	}
+	
 
 	@Autowired
 	BoardService boardService;
@@ -30,12 +115,6 @@ public class BoardController {
 		log.info("PageNumber [{}], PageSize [{}] ", pageable.getPageNumber(), pageable.getPageSize());
 		
 		Page<Board> pageInfo = boardService.getAllBoard(pageable);
-//		System.out.println("viewBoardList"+pageInfo.toString());
-//		System.out.println("Number : "+pageInfo.getNumber());
-//		System.out.println("NumberOfElements : "+pageInfo.getNumberOfElements());
-//		System.out.println("TotalElements : "+pageInfo.getTotalElements());
-//		System.out.println("TotalPages : "+pageInfo.getTotalPages());
-//		System.out.println("Content : "+pageInfo.getContent().toString());
 		
 		model.addAttribute("pageInfo", pageInfo);
 		
@@ -44,7 +123,7 @@ public class BoardController {
 	
 	
 	@RequestMapping(method = RequestMethod.GET, path = "read/{boardNo}")
-	public String viewBoardOne(@PathVariable int boardNo, Model model) {
+	public String viewBoardOne(@PathVariable int boardNo, Model model) throws Exception {
 		
 		model.addAttribute("board", boardService.getBoard(boardNo));
 
@@ -64,18 +143,10 @@ public class BoardController {
 	@RequestMapping(method = RequestMethod.POST, path = "write")
 	public String writeCompleteBoard(BoardForm form, Model model) {
 		Integer no = null;
-		try {
 			no = boardService.createBoard(form.makeEntity()).getBoardNo();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			model.addAttribute("error", "Not exist data");
-			return "redirect:boards/write";
-		}
 		
 		if (no == null) {
-			model.addAttribute("error", "Not exist data Number");
-			return "redirect:boards/write";
+			throw new ProcFailureException("Failure Create Board");
 		}
 
 		return "redirect:/board/read/" + no;
@@ -100,51 +171,31 @@ public class BoardController {
 	
 	@RequestMapping(method = RequestMethod.POST, path = "update/{boardNo}")
 	public String updateCompleteBoard(@PathVariable int boardNo, BoardForm form,  Model model) {
-		try {
-			System.out.println("updateBoard Param : "+form.toString());
-			boardService.updateBoard(boardNo, form.makeEntity());
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			model.addAttribute("message", "Not exist data");
-			model.addAttribute("nextUrl", "/board/read/"+boardNo);
-			
-			return "/common/message";
-		}
+		
+		log.info("updateBoard Param : {} ", form.toString());
+		boardService.updateBoard(boardNo, form.makeEntity());
 		
 		model.addAttribute("message", "Update Success");
+		
 		return "redirect:/board/read/"+boardNo;
 	}
 	
 	
 	@RequestMapping(method = RequestMethod.GET, path = "delete/{boardNo}")
 	public String deleteBoard(@PathVariable int boardNo, Model model) {
-		try {
-			model.addAttribute("board", boardService.getBoard(boardNo));
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			model.addAttribute("error", "Not exist data");
-			return "redirect:/board/read/"+boardNo;
-		}
 		
+		model.addAttribute("board", boardService.getBoard(boardNo));
+
 		return "boards/delete";
 	}
 	
 	
 	@RequestMapping(method = RequestMethod.POST, path = "delete")
 	public String deleteCompleteBoard(@RequestParam(name = "boardNo", required = true) int boardNo,
-			@RequestParam(name = "memberId", required = false, value = "") String memberId, 
+		@RequestParam(name = "memberId", required = false, value = "") String memberId, 
 			Model model) {
-		
-		try {
-			boardService.deleteBoard(boardNo, memberId);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			model.addAttribute("error", "Not exist data or Unmatched MemberId");
-			return "redirect:/board/read/"+boardNo;
-		}
+
+		boardService.deleteBoard(boardNo, memberId);
 		
 		model.addAttribute("message", "Delete Success");
 		return "redirect:/board/list";
