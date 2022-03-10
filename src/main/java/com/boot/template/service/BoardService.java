@@ -72,10 +72,8 @@ public class BoardService {
 	public Board createBoard(Board board) {
 		
 		validationBoardType(board);
-		
-		if (true) {
-			throw new ProcFailureException("Failure Create Board");		
-		}
+		board.setLikes(0);
+		board.setDislikes(0);
 		
 		return boardRepository.save(board);
 	}

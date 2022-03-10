@@ -81,8 +81,11 @@ public class BoardController {
 	
 	@RequestMapping(method = RequestMethod.POST, path = "write")
 	public String writeCompleteBoard(BoardForm form, Model model) {
+		
+		log.info("Create Form data : {} ", form.toString());
+		
 		Integer no = null;
-			no = boardService.createBoard(form.makeEntity()).getBoardNo();
+		no = boardService.createBoard(form.makeEntity()).getBoardNo();
 		
 		if (no == null) {
 			throw new ProcFailureException("Failure Create Board");

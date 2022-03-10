@@ -1,81 +1,64 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layout}">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, inital-scale=1.0"/>
-<title>Board List View</title>
-<style type="text/css">
-#write-board {
-  position: relative;
-  left: 70%;
-}
-
-.paging-element {
-    position: relative;
-    float: left;
-}
-</style>
 </head>
 <body>
-<div>
-    <div><h1>Board List</h1> 
-    <div th:if="${not #strings.isEmpty(session?.member?.memberId)}" th:text="'Login User : '+ ${session.member.memberId}"></div> 
-    </div>
-    <div th:if="${#strings.isEmpty(session?.member?.memberId)}"><button id="write-board" type="button" onclick="location.href='/auth/join'">Join Member</button></div>
-    <div th:if="${#strings.isEmpty(session?.member?.memberId)}"><button id="write-board" type="button" onclick="location.href='/auth/login'">Login Member</button></div>
-    <div th:if="${not #strings.isEmpty(session?.member?.memberId)}"><button id="write-board" type="button" onclick="location.href='/auth/logout'">Logout</button></div>
-    <div><button id="write-board" type="button" onclick="location.href='/board/write'">Write</button></div>
-    <hr/>
-    
-    <div>
-    <table border="1">
-    <tr>
-        <th>Board No</th>
-        <th>Contents Type</th>
-        <th>Title</th>
-        <th>CreatedTime</th>
-        <th>UpdatedTime</th>
-        <th>Likes</th>
-        <th>Counts</th>
-    </tr>
-    <tr th:each="board: ${pageInfo.getContent()}">
-        <td th:text="${board.boardNo}"></td>
-        <td th:text="${board.type}==1 ? 'Normal' : 'MemberShip'"></td>
-        <td><a th:href="@{/board/read/{boardNo}(boardNo=${board.boardNo})}">[[${board.title}]]</a></td>
-        <td th:text="${board.createdTime}"></td>
-        <td th:text="${board.updatedTime}"></td>
-        <td th:text="${board.likes}"></td>
-        <td th:text="${board.counts}"></td>
-    </tr>
-    </table>
-    </div>
-    
-    <!-- paging -->
-    <div id="paging-container">
-        <div>
-            <div class="paging-element">
-                <span th:if="${pageInfo.first}">&lt;&lt;</span>
-                <a th:if="${not pageInfo.first}" th:href="@{/board/list(page=1)}">&lt;&lt;</a>
-                 &nbsp;&nbsp;
-            </div>
-           
-            <div class="paging-element" th:each="p : ${#numbers.sequence(1, (pageInfo.totalPages))}">
-                <!--  <span th:text="${p}+','"></span>  -->
-            
-                <span th:if="${p} == ${pageInfo.number+1}" th:text="'['+${p}+']&nbsp;'"></span>
-                <a th:if="${p} != ${pageInfo.number+1}" th:href="@{/board/list(page=${p})}">
-                    <span th:text="'['+${p}+']'"></span>&nbsp;&nbsp;
-                </a>
 
-            </div>
-            
-            <div class="paging-element">
-                &nbsp;&nbsp;
-                <span th:if="${pageInfo.last}">&gt;&gt;</span>
-                <a th:if="${not pageInfo.last}" th:href="@{/board/list(page=(${pageInfo.totalPages}))}">&gt;&gt;</a>
-            </div>
-        </div>
-    </div>
-</div>
+	<div layout:fragment="contents">
+	    <div class="nav justify-content-end px-5 pt-2">
+	        <button class="btn btn-info text-white" id="write-board" type="button" onclick="location.href='/board/write'">
+	        Contents Write
+	        </button>
+	    </div>
+	    <hr/>
+	    <div>
+		    <table class="table">
+		    <thead class="table-dark">
+		    <tr>
+		        <th>No</th>
+		        <th>Contents Type</th>
+		        <th>Title</th>
+		        <th>CreatedTime</th>
+		        <th>UpdatedTime</th>
+		        <th>Likes</th>
+		        <th>Counts</th>
+		    </tr>
+		    </thead>
+		    <tbody>
+		    <tr th:each="board: ${pageInfo.getContent()}">
+		        <td th:text="${board.boardNo}"></td>
+		        <td th:text="${board.type}==1 ? 'Normal' : 'MemberShip'"></td>
+		        <td><a th:href="@{/board/read/{boardNo}(boardNo=${board.boardNo})}">[[${board.title}]]</a></td>
+		        <td th:text="${board.createdTime}"></td>
+		        <td th:text="${board.updatedTime}"></td>
+		        <td th:text="${board.likes}"></td>
+		        <td th:text="${board.counts}"></td>
+		    </tr>
+		    </tbody>
+		    </table>
+	    </div>
+	    
+	    <!-- paging -->
+	    <div id="paging-container" class="pagination nav justify-content-center px-4">
+	            <div th:class="${pageInfo.first} ? 'page-item disabled' : 'page-item'">
+	                <span class="page-link" th:if="${pageInfo.first}">Prev</span>
+	                <a class="page-link" th:if="${not pageInfo.first}" th:href="@{/board/list(page=1)}">Prev</a>
+	            </div>
+	            <div th:class="${p} != ${pageInfo.number+1} ? 'page-item' : 'page-item disabled'" th:each="p : ${#numbers.sequence(1, (pageInfo.totalPages))}">
+	                <span class="page-link" th:if="${p} == ${pageInfo.number+1}" th:text="'['+${p}+']&nbsp;'"></span>
+	                <a class="page-link" th:if="${p} != ${pageInfo.number+1}" th:href="@{/board/list(page=${p})}">
+	                    <span th:text="'['+${p}+']'"></span>
+	                </a>
+	            </div>
+	            <div th:class="${pageInfo.last} ? 'page-item disabled' : 'page-item' ">
+	                <span class="page-link"  th:if="${pageInfo.last}">Next</span>
+	                <a class="page-link" th:if="${not pageInfo.last}" th:href="@{/board/list(page=(${pageInfo.totalPages}))}">Next</a>
+	            </div>
+	    </div>
+	</div>
 </body>
 </html>

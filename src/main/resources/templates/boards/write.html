@@ -1,65 +1,55 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layout}">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, inital-scale=1.0"/>
 <title>Board Write</title>
-<style type="text/css">
-.board-read-container {
-    margin-bottom: 20px;
-    background-color: #fff;
-    border: 1px solid;
-    width: 700px;
-}
-.board-read-header {
-    padding: 10px 15px;
-    border-bottom: 1px solid transparent;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-}
-.board-read-body {
-    padding: 10px 15px 10px;
-    position: relative;
-    border-right: 1px solid #ddd;
-    height: 300px;
-}
-.btn {
-    padding: 10px 10px 10px 20px;
-}
-</style>
-
 </head>
 <body>
-<div class="board-read-container">
-    <h2>Write Board</h2>
-    <form method="post" th:action=@{/board/write}>
-    <input th:if="${not #strings.isEmpty(session?.member?.memberId)}" type="hidden" name="memberId" th:value="${session.member.memberId}" />
+<div layout:fragment="contents">
     
-    <div class="board-read-header">
+    <form method="post" th:action=@{/board/write} class="form-horizontal">
+    <fieldset>
+    	<legend class="text-center header">Write Board</legend>
+    
+    	<input th:if="${not #strings.isEmpty(session?.member?.memberId)}" type="hidden" name="memberId" th:value="${session.member.memberId}" />
    
     <div th:each="entry : ${boardForm}">
-    
-        <label> Type : </label>
-	    <select name="type">
+      <div class="col-md-4">
+        <h5><label> Type </label></h5>
+	    <select class="form-select" name="type">
 	        <option th:each="list : ${entry.value}" th:value="${list.id}" th:inline="text">[[${list.name}]]</option>
 	    </select>
+	  </div>
     </div>
-    <label> Title : </label> <input type="text" name="title">
     
+    
+    <div class="form-group py-2">
+      <div class="col-md-8">
+        <h5><label>Title</label></h5>
+        <input id="title" name="title" type="text" placeholder="Input Title" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group py-2">
+      <div class="col-md-8">
+        <h5><label>  Contents </label></h5>
+        <textarea name="contents" placeholder="Input Contents" class="form-control" rows="6"></textarea>
+      </div>
     </div>
     <hr/>
-    <div class="board-read-body">
-    <label>  Contents : </label><div></div>
-    <textarea name="contents"></textarea>
+    <div class="form-group py-2">
+       <input type="submit" value="Write Complete" class="btn btn-primary">
     </div>
-    <hr/>
-    <div class="btn complete">
-    <input type="submit" value="Write Complete">
-    </div>
+    </fieldset>
     </form>
+    
+    <div>
+        <button class="btn btn-info" type="button" onclick="location.href='/board/list'">Back to List</button>
+    </div>
 </div>
-<div>
-<button type="button" onclick="location.href='/board/list'">Back to List</button>
-</div>
+
 </body>
 </html>

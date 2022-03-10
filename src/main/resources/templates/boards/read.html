@@ -1,143 +1,81 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layout}">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, inital-scale=1.0"/>
-<title>Board One View</title>
-<style type="text/css">
-.board-read-container {
-    margin-bottom: 20px;
-    background-color: #bbb;
-    border: 1px solid;
-    width: 700px;
-}
-.board-read-header {
-    padding: 10px 15px;
-    border-bottom: 1px solid transparent;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-}
-.board-read-body {
-    position: relative;
-    border-right: 1px solid #ddd;
-    height: 300px;
-}
-.reply-container {
-    margin-top: 20px;
-    background-color: white;
-    border: 1px solid;
-    width: 700px;
-}
-#reply-header {
-    margin: 10px 10px 10px 10px;
-    margin-bottom: 20px;
-    background-color: white;
-    width: 650px;
-}
-#reply-body {
-    margin-bottom: 20px;
-    background-color: white;
-    width: 650px;
-}
-#reply-footer {
-    margin-bottom: 20px;
-    background-color: white;
-    width: 650px;
-}
-
-.reply-footer-form-elements {
-    display: flex;
-}
-
-.reply-footer-form-contents {
-    margin: 10px 10px 10px 10px;
-    border-right: 1px solid #ddd;
-    width: 650px;
-    height: 100px;
-}
-
-textarea {
-    width: 90%;
-    height: 6.25em;
-    border: 1px solid;
-    resize: none;
-}
-
-.likeImg-board {
-    width: 2em;
-    height: 2em;
-}
-
-.likeImg-reply {
-    width: 1em;
-    height: 1em;
-}
-</style>
-<script th:src="@{/webjars/jquery/3.6.0/jquery.min.js}"></script>
-
 </head>
 <body>
-<div class="board-read-container">
-	<div th:if="${not #strings.isEmpty(message)}">
-	    [[${message}]]	
-	</div>
+
+<div layout:fragment="contents">
+
+<article class="blog-post">
     <div class="board-read-header">
-    <h2>Board [ [[${board.boardNo}]] ] View</h2>
-    <div class="like-box-board">
-        <label id="likeCount">0</label> <a><img class="likeImg-board" th:src="@{/images/like.png}" th:value="like"></a> &nbsp;&nbsp;
-        <label id="dislikeCount">0</label> <a><img class="likeImg-board" th:src="@{/images/dislike.png}" th:value="dislike"></a>
+
+    <h1 class="blog-post-title">[[${board.title}]]</h1>
+    <hr/>
+    <p class="blog-post-meta mt-2">Created at [[${board.createdTime}]] / Last Updated : [[${board.updatedTime}]]</p>
+    <div class="nav"> 
+	    <div>
+	        <p th:if="${not #strings.isEmpty(board.memberId)}" th:text="'By ' + ${board.memberId}"></p>
+	    </div>
+	    <div class="like-box-board ps-4">
+	        <label id="likeCount">0</label> <a><img style="width: 2em; height: 2em;" class="likeImg-board" th:src="@{/images/like.png}" th:value="like"></a> &nbsp;&nbsp;
+	        <label id="dislikeCount">0</label> <a><img style="width: 2em; height: 2em;" class="likeImg-board" th:src="@{/images/dislike.png}" th:value="dislike"></a>
+	    </div>
+    </div>
     </div>
     <hr/>
-    Title : [[${board.title}]] / Writer's-id : [[${board.memberId}]]
-    <hr/>
-    Created DateTime : [[${board.createdTime}]] | Last Updated DateTime : [[${board.updatedTime}]]
-    </div>
-    <hr/>
-    <div class="board-read-body">
+    <div class="mt-4 mb-5 px-2 py-2" style="width: 100%;">
         <div th:text="${board.contents}"></div>
     </div>
-</div>
+</article>
 <div>
-<button type="button" onclick="location.href='/board/list'">Back to List</button>
-<button th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/update/{boardNo}(boardNo=${board.boardNo})} +'\';'">Update</button>
-<button th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/delete/{boardNo}(boardNo=${board.boardNo})} +'\';'">Delete</button>
+<button class="btn btn-info" type="button" onclick="location.href='/board/list'">Back to List</button>
+<button class="btn btn-warning" th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/update/{boardNo}(boardNo=${board.boardNo})} +'\';'">Update</button>
+<button class="btn btn-danger" th:if="${not #strings.isEmpty(session?.member?.memberId)} and ${session.member.memberId}==${board.memberId}" type="button" th:onclick="'location.href=\'' + @{/board/delete/{boardNo}(boardNo=${board.boardNo})} +'\';'">Delete</button>
 </div>
 <div class="reply-container">
-    <div id="reply-header">
-        
-    </div>
     <hr/>
-    <div id="reply-body" >
+    <div id="reply-header">   
     </div>
-    <hr/>
+    <div th:if="${not #strings.isEmpty(session?.member?.memberId)}" class="reply-footer-form">
+      <form id="reply-form">
+        <div class="form-group">
+          <div class="reply-footer-form-contents">
+            <textarea class="form-control" id="reply-contents" placeholder="Input Reply contents" rows="3"></textarea>
+          </div>
+          <div>
+            <button class="btn btn-primary mt-3 px-2 py-2" type="button" id="reply-form-submit">Write Reply</button>
+          </div>
+        </div>
+       </form>
+    </div>
+    
+    <div id="reply-body" ></div>
     <div id="reply-footer">
         <div  th:if="${#strings.isEmpty(session?.member?.memberId)}" class="reply-footer-default">
-            <label><a th:href="@{/auth/login}">Please login to reply.</a></label>
+            <label><a class="nav justify-content-center px-4" th:href="@{/auth/login}">Please login to reply.</a></label>
         </div>
-        <div th:if="${not #strings.isEmpty(session?.member?.memberId)}" class="reply-footer-form">
-            <form id="reply-form">
-            
-                <div class="reply-footer-form-elements">
-                    <div class="reply-footer-form-contents">
-                        <textarea id="reply-contents" placeholder="Input Reply contents"></textarea>
-                    </div>
-                    <button type="button" id="reply-form-submit">Join Reply</button>
-                </div>
-            </form>
-        </div>
-        
     </div>
 </div>
-<script th:inline="javascript">
 
+<!-- inline JavaScript must be located in layout:fragment="contents" -->
+<script type="text/javascript" th:inline="javascript">
+
+/*<![CDATA[*/
+ var boardNo = /*[[ ${board.boardNo} ]]*/ "";
+ var memberId = /*[[ ${session?.member?.memberId} ]]*/ "";
+/*]]*/
+
+/**
+ * For reply and like function 
+ */
+ 
 var baseApi  = "http://localhost:8090"
 var replyApi = baseApi+"/reply"
 var likeApi = baseApi+"/like"
-
-/*<![CDATA[*/
-var boardNo = /*[[ ${board.boardNo} ]]*/ "";
-var memberId = /*[[ ${session?.member?.memberId} ]]*/ "";
-/*]]*/
 
 
 // validation check
@@ -168,6 +106,7 @@ function validation(method, targetContents, targetMemberId) {
 
 // create reply
 $(document).on("click", '#reply-form-submit', function() {
+	alert("create reply")
 	var contents = $("#reply-contents").val();
 	
 	if (!validation('c', contents, '')) {
@@ -234,8 +173,8 @@ function makeRepliesView(replies){
 		view = view + '<form>';
 		view = view + '<div>Writer : <span id="reply-memberId_'+reply.replyNo+'" value='+reply.memberId+'>'+reply.memberId+'</span>';
 		view = view + '<div class="like-box-reply">';
-		view = view + '<label id="likeCount-reply-'+reply.replyNo+'">'+reply.likes+'</label> <a href="javascript:void(0);" onclick="doLikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/like.png" value="like"></a> &nbsp;&nbsp;';
-		view = view + '<label id="dislikeCount-reply-'+reply.replyNo+'">'+reply.dislikes+'</label> <a href="javascript:void(0);" onclick="doDislikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/dislike.png" value="dislike"></a>';
+		view = view + '<label id="likeCount-reply-'+reply.replyNo+'">'+reply.likes+'</label> <a href="javascript:void(0);" onclick="doLikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/like.png" value="like" style="width: 1em; height: 1em;"></a> &nbsp;&nbsp;';
+		view = view + '<label id="dislikeCount-reply-'+reply.replyNo+'">'+reply.dislikes+'</label> <a href="javascript:void(0);" onclick="doDislikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/dislike.png" value="dislike" style="width: 1em; height: 1em;"></a>';
 		view = view + '</div></div>';
 		view = view + '<div> Create Datetime : <span id="reply-createDate['+reply.replyNo+']">'+reply.createdTime+'</span></div>';
 		
@@ -451,5 +390,7 @@ function doDislikeReply(replyNo) {
 }
 
 </script>
+
+</div>
 </body>
 </html>
