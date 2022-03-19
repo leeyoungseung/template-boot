@@ -171,21 +171,21 @@ function makeRepliesView(replies){
 	replies.forEach(function (reply){
 		view = view + '<hr/><div>';
 		view = view + '<form>';
-		view = view + '<div>Writer : <span id="reply-memberId_'+reply.replyNo+'" value='+reply.memberId+'>'+reply.memberId+'</span>';
+		view = view + '<div>By <span id="reply-memberId_'+reply.replyNo+'" value='+reply.memberId+'>'+reply.memberId+'</span>';
 		view = view + '<div class="like-box-reply">';
 		view = view + '<label id="likeCount-reply-'+reply.replyNo+'">'+reply.likes+'</label> <a href="javascript:void(0);" onclick="doLikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/like.png" value="like" style="width: 1em; height: 1em;"></a> &nbsp;&nbsp;';
 		view = view + '<label id="dislikeCount-reply-'+reply.replyNo+'">'+reply.dislikes+'</label> <a href="javascript:void(0);" onclick="doDislikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/dislike.png" value="dislike" style="width: 1em; height: 1em;"></a>';
 		view = view + '</div></div>';
-		view = view + '<div> Create Datetime : <span id="reply-createDate['+reply.replyNo+']">'+reply.createdTime+'</span></div>';
+		view = view + '<div> Created at <span id="reply-createDate['+reply.replyNo+']">'+reply.createdTime+'</span></div>';
 		
 		if (reply.memberId == memberId) {
-			view = view + '<div><textarea id="reply-contents_'+reply.replyNo+'" value='+reply.contents+' name="contents">'+reply.contents+'</textarea></div>';
+			view = view + '<div><textarea id="reply-contents_'+reply.replyNo+'" value='+reply.contents+' name="contents" class="form-control">'+reply.contents+'</textarea></div>';
 			view = view + '<div><input type="hidden" name="memberId" value="'+reply.memberId+'"></div>';
 			view = view + '<div><input type="hidden" name="replyNo" value="'+reply.replyNo+'"></div>';
-			view = view + '<div><input type="button" class="reply-update" value="Reply Update" onclick="updateReply(this.form);">&nbsp';
-			view = view + '<input type="button" class="reply-delete" value="Reply Delete" onclick="deleteReply(this.form);"></div>';
+			view = view + '<div><input type="button" class="btn btn-warning btn-sm" value="Update" onclick="updateReply(this.form);">&nbsp';
+			view = view + '<input type="button" class="btn btn-danger btn-sm" value="Delete" onclick="deleteReply(this.form);"></div>';
 		} else {
-			view = view + '<div><textarea id="reply-contents_'+reply.replyNo+'" readonly="readonly" value='+reply.contents+'>'+reply.contents+'</textarea></div>';
+			view = view + '<div><textarea id="reply-contents_'+reply.replyNo+'" readonly="readonly" value='+reply.contents+' class="form-control">'+reply.contents+'</textarea></div>';
 		}
 		
 		view = view + '</form>';

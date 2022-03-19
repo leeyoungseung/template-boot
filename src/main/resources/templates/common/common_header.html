@@ -8,17 +8,17 @@
 
     <header class="bg-dark text-white d-flex flex-wrap align-items-center justify-content-center justify-content-md-between border-bottom">
       <a href="/" class="d-flex align-items-center col-md-3 text-white text-decoration-none px-1 py-1 mx-1 my-1">
-         <h2>Template-Board</h2>
+         <h2>Template-Board </h2>
       </a>
 
       <div class="nav col-md-3 px-1">
         <div  th:if="${not #strings.isEmpty(session?.member?.memberId)}">
            <p th:text="'Welcome ['+ ${session.member.memberId}+']'"></p> 
         </div>
-        <div class="nav-item px-1 py-1" th:if="${#strings.isEmpty(session?.member?.memberId)}">
+        <div class="nav-item px-1 py-1" th:if="${#strings.isEmpty(session?.member?.memberId)} and ${#httpServletRequest.requestURI != '/auth/login'}">
 	        <button class="btn btn-primary" id="write-board" type="button" onclick="location.href='/auth/login'">Login Member</button>
 	    </div>
-        <div class="nav-item px-1 py-1" th:if="${#strings.isEmpty(session?.member?.memberId)}">
+        <div class="nav-item px-1 py-1" th:if="${#strings.isEmpty(session?.member?.memberId)} and ${#httpServletRequest.requestURI != '/auth/join'}">
 	        <button class="btn btn-success me-2" id="write-board" type="button" onclick="location.href='/auth/join'">Join Member</button>
 	    </div>
 	    <div class="nav-item px-1 py-1" th:if="${not #strings.isEmpty(session?.member?.memberId)}">
