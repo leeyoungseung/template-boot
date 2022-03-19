@@ -16,14 +16,12 @@
     
     	<input th:if="${not #strings.isEmpty(session?.member?.memberId)}" type="hidden" name="memberId" th:value="${session.member.memberId}" />
    
-    <div th:each="entry : ${boardForm}">
       <div class="col-md-4">
         <h5><label> Type </label></h5>
 	    <select class="form-select" name="type">
-	        <option th:each="list : ${entry.value}" th:value="${list.id}" th:inline="text">[[${list.name}]]</option>
+	        <option th:each="boardType : ${boardTypes}" th:value="${boardType.value}" th:inline="text">[[${boardType.name}]]</option>
 	    </select>
 	  </div>
-    </div>
     
     
     <div class="form-group py-2">

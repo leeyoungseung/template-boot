@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.boot.template.entity.Board;
+import com.boot.template.enums.BoardType;
 import com.boot.template.exception.ProcFailureException;
 import com.boot.template.form.BoardForm;
 import com.boot.template.service.BoardService;
@@ -73,7 +74,7 @@ public class BoardController {
 	@RequestMapping(method = RequestMethod.GET, path = "write")
 	public String writeBoard(Model model) {
 		
-		model.addAttribute("boardForm", boardService.createBoardForm());
+		model.addAttribute("boardTypes", BoardType.getBoardTypes());
 		
 		return "boards/write";
 	}

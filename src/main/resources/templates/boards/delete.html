@@ -1,60 +1,42 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layout}">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, inital-scale=1.0"/>
 <title>Board Write</title>
-<style type="text/css">
-.board-read-container {
-    margin-bottom: 20px;
-    background-color: #fff;
-    border: 1px solid;
-    width: 700px;
-}
-.board-read-header {
-    padding: 10px 15px;
-    border-bottom: 1px solid transparent;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
-}
-.board-read-body {
-    padding: 10px 15px 10px;
-    position: relative;
-    border-right: 1px solid #ddd;
-    height: 300px;
-}
-.btn {
-    padding: 10px 10px 10px 20px;
-}
-</style>
 
 </head>
 <body>
-<div class="board-read-container">
-    <h2>Delete Board</h2>
-    <div>
-    
-    <form method="post" th:action=@{/board/delete/}>
-    <input th:if="${not #strings.isEmpty(session?.member?.memberId)}" type="hidden" name="memberId" th:value="${session.member.memberId}" />
-    <div class="board-read-header">
-    Do you Really want to delete contents ?? <br/>
-    【Title】 -> [[${board.title}]]
-    </div>
- 
-    <hr/>
-    <input type="hidden" name="boardNo" th:value=${board.boardNo}>
-    <div class="btn complete">
-    <input type="submit" value="Delete Complete">
-    </div>
-    </form>
-    </div>
-</div>
-<div>
-<button type="button" onclick="location.href='/board/list'">Back to List</button>
-</div>
-<div>
-<button type="button" th:onclick="'location.href=\'' + @{/board/read/{boardNo}(boardNo=${board.boardNo})} +'\';'">Back to [[${board.boardNo}]]</button>
-</div>
 
+<div layout:fragment="contents">
+
+    <form method="post" th:action=@{/board/delete/}>
+    <input type="hidden" name="boardNo" th:value=${board.boardNo}>
+    
+    <fieldset>
+    <legend class="text-center header">Delete Board</legend>
+    
+    	<input th:if="${not #strings.isEmpty(session?.member?.memberId)}" type="hidden" name="memberId" th:value="${session.member.memberId}" />
+    <div class="board-read-header">
+    <h5><label>  Do you Really want to delete contents ??  </label></h5><br/>
+    <h5><label>【Title】 : [[${board.title}]]  </label></h5>
+    </div>
+    <hr/>
+
+    <div class="form-group py-2">
+    	<input type="submit" value="Delete Complete" class="btn btn-danger">
+    </div>
+    
+    </fieldset>
+    </form>
+
+	<div>
+		<button class="btn btn-info py-2 my-2" type="button" onclick="location.href='/board/list'">Back to List</button>
+		<button class="btn btn-warning py-2 my-2" type="button" th:onclick="'location.href=\'' + @{/board/read/{boardNo}(boardNo=${board.boardNo})} +'\';'">Back to [[${board.boardNo}]]</button>
+	</div>
+
+</div>
 </body>
 </html>

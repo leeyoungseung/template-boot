@@ -23,7 +23,6 @@ import com.boot.template.entity.Member;
 import com.boot.template.enums.BoardType;
 import com.boot.template.exception.ProcFailureException;
 import com.boot.template.exception.UnvalidParamException;
-import com.boot.template.form.BoardTypeForm;
 import com.boot.template.repo.BoardRepository;
 import com.boot.template.repo.MemberRepository;
 
@@ -52,21 +51,6 @@ public class BoardService {
 		return boardRepository.findAll(pageable);
 	}
 	
-	// create board
-	public Map createBoardForm() {
-		Map formMap = new LinkedHashMap<>();
-		
-		// Type list
-		BoardTypeForm boardType1 = new BoardTypeForm(1, "Normal", true);
-		BoardTypeForm boardType2 = new BoardTypeForm(2, "MemberShip", false);
-		List<BoardTypeForm> boardTypeList = new ArrayList<BoardTypeForm>();
-		boardTypeList.add(boardType1);
-		boardTypeList.add(boardType2);
-		
-		formMap.put("types", boardTypeList);
-		
-		return formMap;
-	}
 	
 	// create board
 	public Board createBoard(Board board) {
@@ -77,6 +61,7 @@ public class BoardService {
 		
 		return boardRepository.save(board);
 	}
+	
 	
 	private void validationBoardType(Board board) {
 		
@@ -122,18 +107,9 @@ public class BoardService {
 		// exist data in DB?
 		Board board = boardRepository.findById(no)
 				.orElseThrow(() -> new NoSuchElementException("Not exist Board Data by no : ["+no+"]"));
-		BoardTypeForm boardType1 = null;
-		BoardTypeForm boardType2 = null;
-		
-		boardType1 = new BoardTypeForm(1, "Normal", true);
-		boardType2 = new BoardTypeForm(2, "MemberShip", false);
-		
-		List<BoardTypeForm> boardTypeList = new ArrayList<BoardTypeForm>();
-		boardTypeList.add(boardType1);
-		boardTypeList.add(boardType2);
 		
 		// Set Form
-		model.addAttribute("types", boardTypeList);
+		model.addAttribute("boardTypes", BoardType.getBoardTypes());
 		model.addAttribute("board", board);
 	}
 	
