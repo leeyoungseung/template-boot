@@ -14,18 +14,24 @@
     <form method="post" th:action=@{/auth/join}>
     <h1 class="h3 mb-3 fw-normal text-center">Please Join Member</h1>
     
-    <div class="mb-3 col-8">
-    	<label class="form-label">ID (E-mail)</label>
-    	<input type="text" name="memberId" class="form-control" aria-describedby="emailHelp">
+    <div class="mb-3 col-12 row">
+        <label class="form-label">ID (E-mail)</label>
+    	<div class="col">  
+    	    <input type="text" id="memberId" name="memberId" class="form-control" aria-describedby="emailHelp">
+    	</div>
+    	<div class="col">
+    	    <button id="id-duplicate-check" class="btn btn-info btn-sm" type="button">ID Duplicate Check</button>
+    	</div>
+    	
     </div>
 
 	<div class="mb-3 col-8">
 		<label class="form-label"> Password </label> 
-		<input class="form-control" type="password" name="password">
+		<input class="form-control" type="password" name="password" id="password">
 	</div>
 
     <div class="nav justify-content-center col-8">
-    	<input class="btn btn-success" type="submit" value="Join Complete">
+    	<input class="btn btn-success" type="button" value="Join Complete" onclick="joinMember(this.form);">
     </div>
     </form>
     
@@ -35,6 +41,78 @@
 		<button class="btn btn-secondary py-2 my-2" type="button" onclick="location.href='javascript:history.back();'">Return to Previous Page</button>
 		<button class="btn btn-info py-2 my-2" type="button" onclick="location.href='/board/list'">Back to List</button>
 	</div>
+	
+<script type="text/javascript" th:inline="javascript">
+
+var baseApi  = "http://localhost:8090"
+var authApi = baseApi+"/auth"
+
+var idDuplicateCheckStatus = false;
+
+$(document).on("click", '#id-duplicate-check', function(event) {
+	event.preventDefault();
+
+	var memberId = $("#memberId").val();
+	if (memberId === "") {
+		alert("Please Input E-mail");
+		$('#memberId').focus();
+		return;
+	}
+	
+	$.ajax({
+		url: authApi+"/checkId",
+		method : 'POST',
+		contentType : 'application/x-www-form-urlencoded; charset=UTF-8',
+		data: {'memberId' : memberId},
+		success :  function(res){
+			//alert(JSON.stringify(res));
+			if (res.data === true) {
+				alert(memberId+" is aleardy exist. Please Login Or Input other Email Id");
+				$('#memberId').focus();
+			} else if (res.data === false) {
+				alert("You can use "+memberId);
+				idDuplicateCheckStatus = true;
+				$('#password').focus();
+			} else {
+				alert(res.data);
+			}
+		},
+	    error: function(xhr, textStatus, error){
+	      console.log(xhr.statusText);
+	      console.log(textStatus);
+	      console.log(error);
+	      alert(error);
+	    }
+	});
+});
+
+
+function joinMember(form) {
+
+	if (!idDuplicateCheckStatus) {
+		alert("Please do ID Duplicate Check");
+		return;
+	}
+	
+	var memberId = form.memberId.value;
+	var password = form.password.value;
+	
+	if (memberId === "") {
+		alert("Please Input E-mail");
+		$('#memberId').focus();
+		return;
+	}
+	
+	if (password === "") {
+		alert("Please Input Password");
+		$('#password').focus();
+		return;
+	}
+	
+	form.submit();
+}
+
+</script>
 
 </div>
 </body>

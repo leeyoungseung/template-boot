@@ -5,28 +5,48 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.boot.template.dto.ResponseDto;
 import com.boot.template.entity.Member;
+import com.boot.template.enums.ResponseInfo;
 import com.boot.template.form.LoginForm;
 import com.boot.template.repo.MemberRepository;
+import com.boot.template.service.MemberService;
 import com.boot.template.utils.EncUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping("auth")
+@Slf4j
+@Validated
 public class AuthController {
 	
 	EncUtil enc = EncUtil.getInstance();
+	
 	@Autowired
 	private MemberRepository memberRepo;
+	
+	@Autowired
+	private MemberService memberService;
 	
 	@RequestMapping(method = RequestMethod.GET, path = "/join")
 	public String joinForm() {
@@ -115,5 +135,39 @@ public class AuthController {
 		model.addAttribute("nextUrl", "/");
 		
 		return "/common/message";
+	}
+	
+	
+	@PostMapping(path = "/checkId")
+	@ResponseBody
+	public ResponseEntity<?> checkId(
+			@RequestParam(required = true,
+			name = "memberId") 
+			@Email 
+			@NotBlank 
+			String memberId
+			) {
+		
+		log.info("Input memberId : {}", memberId);
+		
+		return ResponseEntity.ok(ResponseDto.builder()
+				.resultCode(ResponseInfo.SUCCESS.getResultCode())
+				.message(ResponseInfo.SUCCESS.getMessage())
+				.data(memberService.existMemberId(memberId))
+				.build()
+				);
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<?> validationHandler(HttpServletRequest req, ConstraintViolationException e) {
+		
+		log.error("Error Message : {}", e.getMessage() , e);
+		
+		return ResponseEntity.ok(ResponseDto.builder()
+				.resultCode(ResponseInfo.PARAM_ERROR.getResultCode())
+				.message(ResponseInfo.PARAM_ERROR.getMessage())
+				.data(e.getMessage())
+				.build()
+				);
 	}
 }
