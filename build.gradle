@@ -35,6 +35,13 @@ dependencies {
 	
 	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 	implementation group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect', version: '3.1.0'
+	
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-configuration-processor'
+	// implementation group: 'org.mybatis', name: 'mybatis-spring', version: '1.2.4'
+	// implementation group: 'org.mybatis', name: 'mybatis', version: '3.3.1'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.4'
+	
 }
 
 tasks.named('test') {

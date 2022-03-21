@@ -101,7 +101,7 @@ public class LikeController {
 		
 		try {
 			
-			result = likeService.createOrUpdateLike(form.toEntity());
+			result = likeService.createOrUpdateLike(form);
 			if (result) {
 				return ResponseEntity.ok(ResponseDto.builder()
 						.resultCode(ResponseInfo.SUCCESS.getResultCode())

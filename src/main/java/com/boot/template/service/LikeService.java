@@ -9,18 +9,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.boot.template.conf.DatabaseConfigMybatis;
 import com.boot.template.dto.LikeStatusDto;
 import com.boot.template.entity.Board;
 import com.boot.template.entity.Like;
 import com.boot.template.entity.Reply;
 import com.boot.template.enums.LikeType;
+import com.boot.template.form.LikeForm;
+import com.boot.template.mapper.LikeMapper;
 import com.boot.template.repo.BoardRepository;
 import com.boot.template.repo.LikeRepository;
 import com.boot.template.repo.MemberRepository;
 import com.boot.template.repo.ReplyRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class LikeService {
+	
+	@Autowired
+	private LikeMapper likeMapper;
 	
 	@Autowired
 	private LikeRepository likeRepository;
@@ -35,9 +44,27 @@ public class LikeService {
 	private MemberRepository memberRepository;
 	
 	
+	public boolean existContent(Integer typeNo, String likeType) {
+		log.info("param check typeNo : {}, likeType : {}", typeNo, likeType);
+		Integer res = likeMapper.existContent(likeType, typeNo);
+		return (res == null || res <= 0) ? false : true;
+	}
+	
+	
 	// create or update like
 	@Transactional
-	public boolean createOrUpdateLike(Like like) throws Exception {
+	public boolean createOrUpdateLike(LikeForm likeForm) throws Exception {
+		
+		
+		
+		if (existContent(likeForm.getTypeNo(), likeForm.getLikeType())) {
+			log.info("exist content");
+		} else {
+			log.info("not exist content");
+		}
+		
+		Like like = likeForm.toEntity();
+		
 		
 		// 1. Exist Like data??
 		Optional<Like> originLikeOp = existLikeData(like);

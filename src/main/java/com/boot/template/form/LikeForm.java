@@ -31,8 +31,10 @@ public class LikeForm {
 		Like like = new Like();
 		if (likeType.equals(LikeType.BOARD.value)) {
 			like.setBoardNo(typeNo);
+			like.setReplyNo(null);
 			
 		} else if (likeType.equals(LikeType.REPLY.value)) {
+			like.setBoardNo(null);
 			like.setReplyNo(typeNo);
 			
 		} else {
