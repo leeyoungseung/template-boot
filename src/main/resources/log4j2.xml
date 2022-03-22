@@ -30,9 +30,7 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File" />
         </Root>
+        <Logger name="com.boot.template.mapper" level="DEBUG"/>
     </Loggers>
-    <Logger name="org.springframework" level="info" additivity="false" >
-      	<AppenderRef ref="console" />
-      	<AppenderRef ref="file" />
-    </Logger>
+
 </Configuration>
