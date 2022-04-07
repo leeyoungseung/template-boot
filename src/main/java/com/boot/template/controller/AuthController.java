@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.Email;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.WebUtils;
 
 import com.boot.template.dto.ResponseDto;
 import com.boot.template.entity.Member;
@@ -82,6 +85,8 @@ public class AuthController {
 		member.setPassword(enc.generateSHA512(member.getPassword()));
 		member.setCreatedTime(new Date());
 		member.setUpdatedTime(new Date());
+		member.setSessionKey("unused");
+		member.setSessionLimitTime(new Date(System.currentTimeMillis()));
 		
 		memberRepo.save(member);
 		model.addAttribute("message", member.getMemberId()+"has been joined!!");
@@ -98,7 +103,9 @@ public class AuthController {
 	
 	
 	@RequestMapping(method = RequestMethod.POST, path = "/login")
-	public String doLogin(LoginForm form, HttpSession session, Model model) {
+	public String doLogin(LoginForm form, HttpServletRequest req, HttpServletResponse res, Model model) {
+		
+		log.info("LoginForm Data : {} ", form.toString());
 		
 		// exist and data
 		Optional<Member> memberOp = memberRepo.findByMemberId(form.getMemberId());
@@ -116,8 +123,29 @@ public class AuthController {
 		}
 		
 		// Set User Data in Session
+		HttpSession session = req.getSession();
 		session.setAttribute("member", memberOp.get());
 		memberOp.get().setUpdatedTime(new Date());
+		
+		// If it checked UseAutoLogin, save SessionId in Cookie and Database. for Auto Login.
+		if (form.isUseAutoLogin()) {
+			log.info("set UseAutoLogin Cookie");
+			Cookie authCookie = new Cookie("authCookie", session.getId());
+			authCookie.setPath("/");
+			authCookie.setMaxAge(3000);
+			
+			res.addCookie(authCookie);
+			
+			memberOp.get().setSessionKey(session.getId());
+			Date sessionLimitTime = new Date(System.currentTimeMillis() + (1000 * 3000));
+			memberOp.get().setSessionLimitTime(sessionLimitTime);
+			
+		} else {
+			memberOp.get().setSessionKey("unused");
+			memberOp.get().setSessionLimitTime(new Date(System.currentTimeMillis()));
+		}
+		
+		log.info("Save login user info {} : ", memberOp.get().toString());
 		memberRepo.save(memberOp.get());
 		
 		model.addAttribute("message", "Login Success!!");
@@ -128,9 +156,30 @@ public class AuthController {
 	
 
 	@RequestMapping(method = RequestMethod.GET, path = "/logout")
-	public String logout(HttpSession session, Model model) {
+	public String logout(HttpServletRequest req, HttpServletResponse res, Model model) {
 		
-		session.invalidate();
+		HttpSession session = req.getSession();
+		Object obj = session.getAttribute("member");
+		
+		if (obj != null) {
+			session.removeAttribute("member");
+			session.invalidate();
+			Cookie authCookie = WebUtils.getCookie(req, "authCookie");
+			if (authCookie != null) {
+				authCookie.setPath("/");
+				authCookie.setMaxAge(0);
+				res.addCookie(authCookie);
+				
+				Member member = memberService.getMemberInfoByMemberId(((Member)obj).getMemberId());
+				member.setSessionKey("unused");
+				member.setSessionLimitTime(new Date(System.currentTimeMillis()));
+				
+				memberService.updateMember(member);
+			}
+			
+		}
+
+		
 		model.addAttribute("message", "Logout Success!!");
 		model.addAttribute("nextUrl", "/");
 		
