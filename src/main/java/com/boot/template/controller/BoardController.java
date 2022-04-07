@@ -33,7 +33,7 @@ public class BoardController {
 		ModelAndView mav = new ModelAndView();
 		
 		String message = e.getMessage();
-		String redirectUrl = (req.getHeader("referer") == null ||req.getHeader("referer").isBlank()) ?  "boards/list" : req.getHeader("referer");
+		String redirectUrl = (req.getHeader("referer") == null ||req.getHeader("referer").isBlank()) ?  "board/list" : req.getHeader("referer");
 		String view = "/common/error";
 		
 		mav.addObject("message", message);
@@ -58,7 +58,7 @@ public class BoardController {
 		
 		model.addAttribute("pageInfo", pageInfo);
 		
-		return "boards/list";
+		return "board/list";
 	}
 	
 	
@@ -67,7 +67,7 @@ public class BoardController {
 		
 		model.addAttribute("board", boardService.getBoard(boardNo));
 
-		return "boards/read";
+		return "board/read";
 	}
 	
 	
@@ -76,7 +76,7 @@ public class BoardController {
 		
 		model.addAttribute("boardTypes", BoardType.getBoardTypes());
 		
-		return "boards/write";
+		return "board/write";
 	}
 	
 	
@@ -108,7 +108,7 @@ public class BoardController {
 			return "redirect:/board/read/"+boardNo;
 		}
 		
-		return "boards/update";
+		return "board/update";
 	}
 	
 	
@@ -129,7 +129,7 @@ public class BoardController {
 		
 		model.addAttribute("board", boardService.getBoard(boardNo));
 
-		return "boards/delete";
+		return "board/delete";
 	}
 	
 	

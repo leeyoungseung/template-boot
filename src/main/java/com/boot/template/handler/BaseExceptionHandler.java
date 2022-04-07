@@ -25,11 +25,11 @@ public class BaseExceptionHandler {
 	public ModelAndView processErrorHandler(HttpServletRequest req, Exception e) {
 		ModelAndView mav = new ModelAndView();
 		
-		String message = e.getMessage();
-		String redirectUrl = "/boards/list";
+		String message = e.getStackTrace().toString();
+		String redirectUrl = "/";
 		String view = "/common/error";
 		
-		mav.addObject("message", message);
+		//mav.addObject("message", message);
 		mav.addObject("redirectUrl", redirectUrl);
 		mav.setViewName(view);
 		

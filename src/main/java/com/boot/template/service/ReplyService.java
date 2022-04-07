@@ -60,7 +60,8 @@ public class ReplyService {
 		
 		newReply.setCreatedTime(new Date());
 		newReply.setUpdatedTime(new Date());
-		
+		newReply.setLikes(0);
+		newReply.setDislikes(0);
 		replyRepository.save(newReply);
 		
 		return true;
