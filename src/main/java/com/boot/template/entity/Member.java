@@ -34,5 +34,11 @@ public class Member {
 	
 	@Column(name = "role")
 	private String role;
+	
+	@Column(name = "session_key")
+	private String sessionKey;
+	
+	@Column(name = "session_limit_time")
+	private Date sessionLimitTime;
 
 }

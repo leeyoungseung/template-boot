@@ -22,6 +22,8 @@ public class LoginForm {
 	private Date createdTime;
 	private Date updatedTime;
 	
+	private boolean useAutoLogin;
+	
 	public Member makeEntity() {
 		Member member = new Member();
 		member.setMemberId(memberId);
