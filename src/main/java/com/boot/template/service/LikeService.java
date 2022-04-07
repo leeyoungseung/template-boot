@@ -46,6 +46,11 @@ public class LikeService {
 	
 	public boolean existContent(Integer typeNo, String likeType) {
 		log.info("param check typeNo : {}, likeType : {}", typeNo, likeType);
+		
+		if (typeNo == null || likeType == null) {
+			return false;
+		}
+		
 		Integer res = likeMapper.existContent(likeType, typeNo);
 		return (res == null || res <= 0) ? false : true;
 	}
@@ -54,35 +59,17 @@ public class LikeService {
 	// create or update like
 	@Transactional
 	public boolean createOrUpdateLike(LikeForm likeForm) throws Exception {
-		
-		
-		
-		if (existContent(likeForm.getTypeNo(), likeForm.getLikeType())) {
-			log.info("exist content");
-		} else {
-			log.info("not exist content");
-		}
-		
+
 		Like like = likeForm.toEntity();
-		
 		
 		// 1. Exist Like data??
 		Optional<Like> originLikeOp = existLikeData(like);
 		
 		if (originLikeOp.isEmpty()) {
 			// 2. Case-Create
+			
 			// 2-1. Exist Data by BoardNo or ReplyNo?
-			if (!(
-					(like.getLikeType().equals(LikeType.BOARD.value) 
-					      && like.getBoardNo() != null
-					      && boardRepository.existsById(like.getBoardNo())
-					     ) ||
-					(like.getLikeType().equals(LikeType.REPLY.value) 
-					     && like.getReplyNo() != null
-					     && replyRepository.existsById(like.getReplyNo())
-					     )
-					)
-				) { 
+			if ( !existContent(likeForm.getTypeNo(), likeForm.getLikeType()) ) { 
 				throw new Exception("Not Exist Data!! ["+like.toString()+"]");
 			}
 			
@@ -99,10 +86,11 @@ public class LikeService {
 			
 			if (like.getLikeType().equals(LikeType.BOARD.value)) {
 				Board board = boardRepository.getById(like.getBoardNo());
+				
 				if (like.isLikeStatus()) {
-					board.setLikes(1);
+					board.setLikes(board.getLikes() + 1);
 				} else {
-					board.setDislikes(1);
+					board.setDislikes(board.getDislikes() + 1);
 				}
 				
 				board.setUpdatedTime(new Date());
@@ -110,10 +98,11 @@ public class LikeService {
 				
 			} else if (like.getLikeType().equals(LikeType.REPLY.value)) {
 				Reply reply = replyRepository.getById(like.getReplyNo());
+				
 				if (like.isLikeStatus()) {
-					reply.setLikes(1);
+					reply.setLikes(reply.getLikes() + 1);
 				} else {
-					reply.setDislikes(1);
+					reply.setDislikes(reply.getDislikes() + 1);
 				}
 				
 				reply.setUpdatedTime(new Date());
@@ -128,18 +117,8 @@ public class LikeService {
 			
 		} else {
 			// 3. Case-Update
-			// 3-1. Exist Board by boardNo? If not exist Board, this process have to finish.
-			if (!(
-					(like.getLikeType().equals(LikeType.BOARD.value)
-						 && like.getBoardNo() != null
-						 && boardRepository.existsById(like.getBoardNo())
-						  ) ||
-					(like.getLikeType().equals(LikeType.REPLY.value) 
-						  && like.getReplyNo() != null
-						  && replyRepository.existsById(like.getReplyNo())
-						  )
-				     )
-				) { 
+			// 3-1. Exist Data by BoardNo or ReplyNo?
+			if ( !existContent(likeForm.getTypeNo(), likeForm.getLikeType()) ) { 
 				throw new Exception("Not Exist Data!! ["+like.toString()+"]");
 			}
 			
@@ -157,6 +136,7 @@ public class LikeService {
 				
 				if (like.getLikeType().equals(LikeType.BOARD.value)) {
 					Board board = boardRepository.getById(like.getBoardNo());
+					
 					if (like.isLikeStatus()) {
 						board.setLikes(board.getLikes() - 1);
 					} else {
@@ -168,6 +148,7 @@ public class LikeService {
 					
 				} else if (like.getLikeType().equals(LikeType.REPLY.value)) {
 					Reply reply = replyRepository.getById(like.getReplyNo());
+					
 					if (like.isLikeStatus()) {
 						reply.setLikes(reply.getLikes() - 1);
 					} else {
@@ -207,6 +188,7 @@ public class LikeService {
 					
 				} else if (like.getLikeType().equals(LikeType.REPLY.value)) {
 					Reply reply = replyRepository.getById(like.getReplyNo());
+					
 					if (like.isLikeStatus()) {
 						reply.setLikes(reply.getLikes() + 1);
 						reply.setDislikes(reply.getDislikes() - 1);
@@ -250,7 +232,7 @@ public class LikeService {
 	@Transactional
 	public LikeStatusDto getLikeStatusByTargetNoAndMemberId(String targetType, Integer targetNo, String memberId) throws Exception {
 		
-		if (!typeValidation(targetType, targetNo)) {
+		if (!existContent(targetNo, targetType)) {
 			throw new Exception("Not Exist Data!! targetType : ["+targetType+"] , targetNo : ["+targetNo+"], memberId : ["+memberId+"]");
 		}
 		
@@ -342,28 +324,6 @@ public class LikeService {
 		}
 		
 		return result;
-	}
-	
-	
-	private boolean typeValidation(String likeType, Integer targetValue) throws Exception {
-		
-		if (
-			!(
-			    (likeType.equals(LikeType.BOARD.value) 
-				&& targetValue != null
-				&& boardRepository.existsById(targetValue)
-				) 
-				||
-				(likeType.equals(LikeType.REPLY.value) 
-				&& targetValue != null
-				&& replyRepository.existsById(targetValue)
-				)
-			 )
-			) { 
-			return false;
-		}
-		
-		return true;
 	}
 	
 }
