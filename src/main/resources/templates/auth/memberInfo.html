@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{common/layout}">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, inital-scale=1.0"/>
+
+</head>
+<body>
+
+<div layout:fragment="contents">
+<style type="text/css">
+	#upload-box {
+		width : 300px;
+		height: 300px;
+		border : 1px solid gray;
+		box-shadow: 2px 3px 9px hsl(0, 0% 50%);
+		padding: 10px;
+	}
+	#upload-btn {
+		width : 180px;
+		height: 50px;
+		border : 1px solid gray;
+		box-shadow: 2px 3px 9px hsl(0, 0% 50%);
+		padding: 10px;
+	}
+</style>
+    <div class="nav justify-content-center col-12">
+	    <form method="post" th:action=@{/auth/join}>
+
+	    <div>
+	    <p>Password Update</p>
+		    <div class="mb-3 col-12 row">
+		        <label class="form-label">ID (E-mail)</label>
+		    	<div class="col">
+		    	    <input type="text" id="memberId" name="memberId" class="form-control" aria-describedby="emailHelp">
+		    	</div>
+		    	<div class="col">
+		    	    <button id="id-duplicate-check" class="btn btn-info btn-sm" type="button">ID Duplicate Check</button>
+		    	</div>
+
+		    </div>
+
+			<div class="mb-3 col-8">
+				<label class="form-label"> Password </label>
+				<input class="form-control" type="password" name="password" id="password">
+			</div>
+		</div>
+
+	    <div class="nav justify-content-center col-8">
+	    	<input class="btn btn-success" type="button" value="Join Complete" onclick="joinMember(this.form);">
+	    </div>
+	    </form>
+
+	    <form action="">
+	    <div>
+
+		    <div class="row">
+			    <div class="col-6">Upload Profile Picture
+				    <section id="upload-box" style="
+					    width:200px;
+					    height:200px;
+					    border:1px solid gray;
+					    box-shadow:2px 3px 9px hsl(0, 0% 50%);
+					    padding: 10px;"
+				    >
+				    <div id="upload-element">
+				        <input class="btn btn-info" id="upload-btn" type="file" value="Select File"/>
+				    </div>
+				    </section>
+			    </div>
+
+			    <div class="col-6">ThumbNail
+			    <section id="thumb-box" style="
+					    width:200px;
+					    height:200px;
+					    border:1px solid gray;
+					    box-shadow:2px 3px 9px hsl(0, 0% 50%);
+					    padding: 10px;"
+				    >
+
+
+				    <img id="thumbNail">
+				    </section>
+
+			    </div>
+
+		    </div>
+
+		</div>
+
+	    </form>
+    </div>
+    <hr/>
+
+	<div>
+		<button class="btn btn-secondary py-2 my-2" type="button" onclick="location.href='javascript:history.back();'">Return to Previous Page</button>
+		<button class="btn btn-info py-2 my-2" type="button" onclick="location.href='/board/list'">Back to List</button>
+	</div>
+
+<script type="text/javascript" th:inline="javascript">
+
+var baseApi  = "http://localhost:8090"
+var authApi = baseApi+"/auth"
+
+var uploadBox = $('#upload-box')[0];
+var btnUpload = uploadBox.querySelector('.upload-btn');
+var inputFile = uploadBox.querySelector('input[type="file"]');
+var uploadEl = uploadBox.querySelector('#upload-element');
+
+
+$(document).ready(function() {
+	$('#upload-btn').change(function(){
+
+		const formData = new FormData();
+		formData.append('file', $('#upload-btn')[0].files[0]);
+
+		uploadThumb({
+			url: authApi+'/thumb',
+			method: 'POST',
+			data: formData,
+			progress: () => {},
+		    loadend: () => {}
+		});
+
+	});
+});
+
+
+$(document).ready(function() {
+
+	/* When it occur as soon as event of Drag in upload-box. */
+	uploadBox.addEventListener('dragenter', function(e) {
+	    //console.log('dragenter');
+	});
+
+	/* When it is doing to Drag in upload-box. */
+	uploadBox.addEventListener('dragover', function(e) {
+	    e.preventDefault();
+	    //console.log('dragover');
+
+        var vaild = e.dataTransfer.types.indexOf('Files') >= 0;
+
+        if(!vaild){
+            this.style.backgroundColor = 'red';
+        }
+        else{
+            this.style.backgroundColor = 'green';
+        }
+	});
+
+	/* When event of Drag get out of upload-box. */
+	uploadBox.addEventListener('dragleave', function(e) {
+	    //console.log('dragleave');
+
+	    this.style.backgroundColor = 'white';
+	});
+
+	/* When it occur event of Drop in upload-box. */
+	uploadBox.addEventListener('drop', function(e) {
+	    e.preventDefault();
+	    console.dir(e.dataTransfer);
+	    const data = e.dataTransfer;
+
+	    $("input[type='file']")
+	    .prop("files", data.files);
+
+	    this.style.backgroundColor = 'white';
+
+
+	    if (!isValidFile(data)) return;
+
+	    const formData = new FormData();
+	    formData.append('file', data.files[0]);
+
+	    uploadThumb({
+	    	url: authApi+'/thumb',
+	    	method: 'POST',
+	    	data: formData,
+	    	progress: () => {},
+	    	loadend: () => {}
+	    });
+
+	});
+
+});
+
+function getThumb(obj) {
+	var method = obj.method || 'GET';
+	var url = obj.url || '';
+
+	const xhr = new XMLHttpRequest();
+
+	/* 성공 */
+	xhr.addEventListener('loadend', function() {
+
+		//const data = xhr.responseText;
+		const data = xhr.response;
+		console.log("getThumb addEventListener loadend ");
+		console.log(data);
+
+		var img = document.getElementById('thumbNail');
+		var url = window.URL || window.webkitURL;
+		img.src = url.createObjectURL(data);
+
+		//if(obj.loadend())
+		//	obj.loadend(data);
+	});
+
+	if(obj.async === false)
+		xhr.open(method, url, obj.async);
+	else
+		xhr.open(method, url, true);
+
+	xhr.responseType = 'blob';
+	xhr.send();
+}
+
+function uploadThumb(obj) {
+	const xhr = new XMLHttpRequest();
+
+	var method = obj.method || 'GET';
+	var url = obj.url || '';
+	var data = obj.data || null;
+
+	/* 성공/에러 */
+	xhr.addEventListener('load', function() {
+
+		const data = xhr.responseText;
+
+		if(obj.load)
+			obj.load(data);
+	});
+
+	/* 성공 */
+	xhr.addEventListener('loadend', function() {
+
+		const data = xhr.responseText;
+		console.log("xhr.addEventListener loadend ");
+		console.log(data);
+
+		getThumb({
+	    	url: authApi+'/thumb?filename='+data,
+	    	method: 'GET',
+	    	loadend: () => {}
+	    });
+
+		if(obj.loadend) {
+
+		}
+	});
+
+	/* 실패 */
+	xhr.addEventListener('error', function() {
+
+		console.log('Ajax Error : ' + xhr.status + ' / ' + xhr.statusText);
+
+		if(obj.error){
+			obj.error(xhr, xhr.status, xhr.statusText);
+		}
+	});
+
+	/* 중단 */
+	xhr.addEventListener('abort', function() {
+
+		if(obj.abort){
+			obj.abort(xhr);
+		}
+	});
+
+	/* 진행 */
+	xhr.upload.addEventListener('progress', function() {
+
+		if(obj.progress){
+			obj.progress(xhr);
+		}
+	});
+
+	/* 요청 시작 */
+	xhr.addEventListener('loadstart', function() {
+
+		if(obj.loadstart)
+			obj.loadstart(xhr);
+	});
+
+	if(obj.async === false)
+		xhr.open(method, url, obj.async);
+	else
+		xhr.open(method, url, true);
+
+	if(obj.contentType)
+		xhr.setRequestHeader('Content-Type', obj.contentType);
+
+	xhr.send(data);
+}
+
+
+function isValidFile(data) {
+
+	//if (data.types.indexOf('Files') < 0) return false;
+
+	if (data.files[0].type.indexOf('image') < 0) {
+		alert('It only can upload Image-File');
+		return false;
+	}
+
+	if (data.files.length > 1) {
+		alert('It only can upload one Image-File per trying to upload.');
+		return false;
+	}
+
+	if (data.files[0].size >= (1024 * 1024 * 10)) {
+		alert('It can\'t upload a Image-File which is over 10MB.');
+		return false;
+	}
+
+	return true;
+}
+
+
+
+function joinMember(form) {
+
+	if (!idDuplicateCheckStatus) {
+		alert("Please do ID Duplicate Check");
+		return;
+	}
+
+	var memberId = form.memberId.value;
+	var password = form.password.value;
+
+	if (memberId === "") {
+		alert("Please Input E-mail");
+		$('#memberId').focus();
+		return;
+	}
+
+	if (password === "") {
+		alert("Please Input Password");
+		$('#password').focus();
+		return;
+	}
+
+	form.submit();
+}
+
+</script>
+
+</div>
+</body>
+</html>

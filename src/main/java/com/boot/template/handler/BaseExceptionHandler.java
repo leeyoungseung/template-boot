@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.boot.template.controller.AuthController;
 import com.boot.template.controller.BoardController;
 import com.boot.template.controller.IndexController;
 import com.boot.template.exception.UnvalidParamException;
@@ -17,7 +18,7 @@ import com.boot.template.exception.UnvalidParamException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@ControllerAdvice(assignableTypes = {BoardController.class, IndexController.class})
+@ControllerAdvice(assignableTypes = {BoardController.class, IndexController.class, AuthController.class})
 public class BaseExceptionHandler {
 
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
