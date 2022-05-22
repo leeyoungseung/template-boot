@@ -10,7 +10,8 @@ server:
 property:
   app:
     static-path: src/main/resources/static/
-    upload-path: uploads
+    temp-upload-path: uploads/tmp
+    upload-path-member-pic: uploads/member-profile
     allow-extentions: .png,.jpg,.jpeg,.gif
       
 spring:

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html 
-    xmlns:th="http://www.thymeleaf.org" 
+<html
+    xmlns:th="http://www.thymeleaf.org"
     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <body>
@@ -12,8 +12,8 @@
       </a>
 
       <div class="nav col-md-3 px-1">
-        <div  th:if="${not #strings.isEmpty(session?.member?.memberId)}">
-           <p th:text="'Welcome ['+ ${session.member.memberId}+']'"></p> 
+        <div th:if="${not #strings.isEmpty(session?.member?.memberId)}">
+           <p th:text="'Welcome ['+ ${session.member.memberId}+']'"></p>
         </div>
         <div class="nav-item px-1 py-1" th:if="${#strings.isEmpty(session?.member?.memberId)} and ${#httpServletRequest.requestURI != '/auth/login'}">
 	        <button class="btn btn-primary" id="write-board" type="button" onclick="location.href='/auth/login'">Login Member</button>
@@ -21,14 +21,27 @@
         <div class="nav-item px-1 py-1" th:if="${#strings.isEmpty(session?.member?.memberId)} and ${#httpServletRequest.requestURI != '/auth/join'}">
 	        <button class="btn btn-success me-2" id="write-board" type="button" onclick="location.href='/auth/join'">Join Member</button>
 	    </div>
-	    <div class="nav-item px-1 py-1" th:if="${not #strings.isEmpty(session?.member?.memberId)}">
-	        <button class="btn btn-warning" id="write-board" type="button" onclick="location.href='/auth/logout'">Logout</button>
-	        <a th:href="@{/auth/member/} + ${session.member.memberNo}">
-	        <svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" fill="currentColor" class="bi bi-file-earmark-person" viewBox="0 0 16 16">
-                <path d="M11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2v9.255S12 12 8 12s-5 1.755-5 1.755V2a1 1 0 0 1 1-1h5.5v2z"/>
-            </svg>
-            </a>
+	    <div class="nav-item px-1 py-1 row" th:if="${not #strings.isEmpty(session?.member?.memberId)}">
+	        <div class="col-6 mx-auto my-auto">
+	          <button class="btn btn-warning" id="write-board" type="button" onclick="location.href='/auth/logout'">Logout</button>
+	        </div>
+
+			<div class="col-6 mx-auto my-auto">
+		        <div th:if="${#strings.isEmpty(session?.member?.profilePicture)}">
+		        <a th:href="@{/auth/member/} + ${session.member.memberNo}">
+		        <svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" fill="currentColor" class="bi bi-file-earmark-person" viewBox="0 0 16 16">
+	                <path d="M11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+	                <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2v9.255S12 12 8 12s-5 1.755-5 1.755V2a1 1 0 0 1 1-1h5.5v2z"/>
+	            </svg>
+	            </a>
+	            </div>
+
+	            <div th:if="${not #strings.isEmpty(session?.member?.profilePicture)}">
+		        <a th:href="@{/auth/member/} + ${session.member.memberNo}">
+		          <img width="32px" height="32px" alt="profile-pic" th:src="@{/uploads/member-profile/} + ${session.member.profilePicture}">
+	            </a>
+	            </div>
+            </div>
 	    </div>
       </div>
     </header>

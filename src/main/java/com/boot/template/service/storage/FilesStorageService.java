@@ -20,4 +20,6 @@ public interface FilesStorageService {
 
 	  public String saveOne(MultipartFile file, String uniqId);
 
+	  public String move(String tempFile, String moveFile);
+
 }

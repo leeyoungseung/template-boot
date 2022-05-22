@@ -28,8 +28,11 @@ public class ImageStorageServiceImpl implements FilesStorageService {
 	@Value("${property.app.static-path}")
 	private String staticPath;
 
-	@Value("${property.app.upload-path}")
-	private String uploadPath;
+	@Value("${property.app.temp-upload-path}")
+	private String tempUploadPath;
+
+	@Value("${property.app.upload-path-member-pic}")
+	private String uploadPathMemberPic;
 
 	@Value("${property.app.allow-extentions}")
 	private List<String> allowExtentions;
@@ -47,8 +50,8 @@ public class ImageStorageServiceImpl implements FilesStorageService {
 	public List<String> save(MultipartFile[] files, String uniqId) {
 		try {
 			List<String> uploadedFiles = new ArrayList<String>();
-			log.info("Resource Path : ["+ staticPath+uploadPath+"]");
-			String uniqImgeFileDir = staticPath+uploadPath;
+			log.info("Resource Path : ["+ staticPath+tempUploadPath+"]");
+			String uniqImgeFileDir = staticPath+tempUploadPath;
 			Path root = Paths.get(uniqImgeFileDir);
 
 			int cnt =0;
@@ -78,8 +81,8 @@ public class ImageStorageServiceImpl implements FilesStorageService {
 	public String saveOne(MultipartFile file, String uniqId) {
 		try {
 
-			log.info("Resource Path : ["+ staticPath+uploadPath+"]");
-			String uniqImgeFileDir = staticPath+uploadPath;
+			log.info("Resource Path : ["+ staticPath+tempUploadPath+"]");
+			String uniqImgeFileDir = staticPath+tempUploadPath;
 			Path root = Paths.get(uniqImgeFileDir);
 			String fileName = uniqId+"_"+
 					new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
@@ -100,10 +103,10 @@ public class ImageStorageServiceImpl implements FilesStorageService {
 	@Override
 	public Resource load(String filename, String uniqId) {
 
-		log.info("Load File :"+staticPath+uploadPath+"/"+filename);
+		log.info("Load File :"+staticPath+tempUploadPath+"/"+filename);
 
 		try {
-			String uniqImgeFileDir = staticPath+uploadPath;
+			String uniqImgeFileDir = staticPath+tempUploadPath;
 			Path root = Paths.get(uniqImgeFileDir);
 
 			Path file = root.resolve(filename);
@@ -129,6 +132,34 @@ public class ImageStorageServiceImpl implements FilesStorageService {
 	@Override
 	public Stream<Path> loadAll(String uniqId) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String move(String tempFile, String moveFile) {
+		log.info("Temp File : {} -> Move File : {} ", (staticPath+tempUploadPath+"/"+tempFile), (staticPath+uploadPathMemberPic+"/"+moveFile));
+
+		try {
+			String tempFileDir = staticPath+tempUploadPath;
+			String moveFileDir = staticPath+uploadPathMemberPic;
+
+			Path tempRoot = Paths.get(tempFileDir);
+			Path moveRoot = Paths.get(moveFileDir);
+
+			Path tempFilePath = tempRoot.resolve(tempFile);
+			Path moveFilePath = moveRoot.resolve(moveFile);
+
+			Resource tempFileResource = new UrlResource(tempFilePath.toUri());
+			Resource moveFileResource = new UrlResource(moveFilePath.toUri());
+
+			Files.move(tempFileResource.getFile().toPath(), moveFileResource.getFile().toPath());
+
+			return moveFilePath.toString();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 

@@ -42,4 +42,7 @@ public class Member {
 	@Column(name = "session_limit_time")
 	private Date sessionLimitTime;
 
+	@Column(name = "profile_picture")
+	private String profilePicture;
+	
 }

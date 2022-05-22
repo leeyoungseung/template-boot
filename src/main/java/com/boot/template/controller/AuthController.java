@@ -1,5 +1,6 @@
 package com.boot.template.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -307,6 +308,37 @@ public class AuthController {
                 .headers(header)
                 .contentLength(resource.getFile().length())
                 .body(resource);
+	}
+
+
+	@PostMapping("/profile-pic")
+	public String joinMemberProfilePic(@RequestParam(value = "filename") String filename,
+			HttpServletRequest req, HttpServletResponse res, Model model) throws IOException {
+
+	    HttpSession session = req.getSession();
+	    Member member = (Member)session.getAttribute("member");
+
+		// exist and data
+		Optional<Member> memberOp = memberRepo.findByMemberId(member.getMemberId());
+		if (memberOp.isEmpty()) {
+			model.addAttribute("message", member.getMemberId()+" not exist!!");
+			model.addAttribute("nextUrl", "/auth/join");
+			return "/common/message";
+		}
+
+		String saveFileName = new File (filesStorageService.move(filename, filename)).getName();
+
+		Member memberForSave = memberOp.get();
+		memberForSave.setProfilePicture(saveFileName);
+
+		log.info("setProfilePicture : {}", saveFileName);
+
+		memberRepo.save(memberForSave);
+
+		member.setProfilePicture(saveFileName);
+		session.setAttribute("member", member);
+
+		return "redirect:/auth/member/" + member.getMemberNo();
 	}
 
 }
