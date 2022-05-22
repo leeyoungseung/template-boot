@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" 
+<html xmlns:th="http://www.thymeleaf.org"
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{common/layout}">
 <head>
@@ -16,7 +16,7 @@
     <h1 class="blog-post-title">[[${board.title}]]</h1>
     <hr/>
     <p class="blog-post-meta mt-2">Created at [[${board.createdTime}]] / Last Updated : [[${board.updatedTime}]]</p>
-    <div class="nav"> 
+    <div class="nav">
 	    <div>
 	        <p th:if="${not #strings.isEmpty(board.memberId)}" th:text="'By ' + ${board.memberId}"></p>
 	    </div>
@@ -38,7 +38,7 @@
 </div>
 <div class="reply-container">
     <hr/>
-    <div id="reply-header">   
+    <div id="reply-header">
     </div>
     <div th:if="${not #strings.isEmpty(session?.member?.memberId)}" class="reply-footer-form">
       <form id="reply-form">
@@ -52,8 +52,9 @@
         </div>
        </form>
     </div>
-    
+
     <div id="reply-body" ></div>
+    <div id="reply-paging" ></div>
     <div id="reply-footer">
         <div  th:if="${#strings.isEmpty(session?.member?.memberId)}" class="reply-footer-default">
             <label><a class="nav justify-content-center px-4" th:href="@{/auth/login}">Please login to reply.</a></label>
@@ -70,9 +71,9 @@
 /*]]*/
 
 /**
- * For reply and like function 
+ * For reply and like function
  */
- 
+
 var baseApi  = "http://localhost:8090"
 var replyApi = baseApi+"/reply"
 var likeApi = baseApi+"/like"
@@ -99,7 +100,7 @@ function validation(method, targetContents, targetMemberId) {
 			return false;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -108,11 +109,11 @@ function validation(method, targetContents, targetMemberId) {
 $(document).on("click", '#reply-form-submit', function() {
 	alert("create reply")
 	var contents = $("#reply-contents").val();
-	
+
 	if (!validation('c', contents, '')) {
 		return;
 	}
-	
+
 	var newReply = {
 			"contents": contents,
 			"boardNo" : parseInt(boardNo),
@@ -125,7 +126,7 @@ $(document).on("click", '#reply-form-submit', function() {
 		contentType : 'application/json; charset=UTF-8',
 		data: JSON.stringify(newReply),
 		success :  function(res){
-			alert(JSON.stringify(res));
+			//alert(JSON.stringify(res));
 			clearReplyInput();
 			viewReplies();
 		},
@@ -146,14 +147,20 @@ function clearReplyInput() {
 
 
 // view replies
-function viewReplies() {
+function viewReplies(p) {
+	if (p < 0) {
+		p = 0;
+	}
+
 	$.ajax({
-		url: replyApi+'/list/'+boardNo,
+		url: replyApi+'/list-v2/'+boardNo+'?page='+p+'&size=5',
 		method : 'GET',
 		dataType: 'json',
 		success :  function(res){
 			console.log(JSON.stringify(res.data))
-			makeRepliesView(res.data);
+			//makeRepliesView(res.data);
+			makeRepliesViewWithPaging(res.data);
+
 		},
 	    error: function(xhr, textStatus, error){
 	      console.log(xhr.statusText);
@@ -167,7 +174,7 @@ function viewReplies() {
 function makeRepliesView(replies){
 	$("#reply-body").empty();
 	var view = '';
-	
+
 	replies.forEach(function (reply){
 		view = view + '<hr/><div>';
 		view = view + '<form>';
@@ -177,7 +184,7 @@ function makeRepliesView(replies){
 		view = view + '<label id="dislikeCount-reply-'+reply.replyNo+'">'+reply.dislikes+'</label> <a href="javascript:void(0);" onclick="doDislikeReply('+reply.replyNo+')"><img class="likeImg-reply" src="/images/dislike.png" value="dislike" style="width: 1em; height: 1em;"></a>';
 		view = view + '</div></div>';
 		view = view + '<div> Created at <span id="reply-createDate['+reply.replyNo+']">'+reply.createdTime+'</span></div>';
-		
+
 		if (reply.memberId == memberId) {
 			view = view + '<div><textarea id="reply-contents_'+reply.replyNo+'" value='+reply.contents+' name="contents" class="form-control">'+reply.contents+'</textarea></div>';
 			view = view + '<div><input type="hidden" name="memberId" value="'+reply.memberId+'"></div>';
@@ -187,54 +194,103 @@ function makeRepliesView(replies){
 		} else {
 			view = view + '<div><textarea id="reply-contents_'+reply.replyNo+'" readonly="readonly" value='+reply.contents+' class="form-control">'+reply.contents+'</textarea></div>';
 		}
-		
+
 		view = view + '</form>';
 		view = view + '</div>';
 	})
-	
-	console.log(view);
+
+	//console.log(view);
 	$("#reply-body").html(view);
-	
+
+}
+
+
+function makeRepliesViewWithPaging(data) {
+
+	makeRepliesView(data.content);
+
+	$("#reply-paging").empty();
+	var view = '';
+
+	view = view + '<div id="paging-container" class="pagination nav justify-content-center px-4">';
+
+	// (1) Prev
+	if (data.first) {
+		view = view + '<div class="page-item disabled">';
+		view = view + '<span class="page-link">Prev</span>';
+		view = view + '</div>';
+	} else {
+		view = view + '<div class="page-item">';
+		view = view + '<a class="page-link" href="javascript:viewReplies('+ (data.number - 1) +');"><span>Prev</span></a>';
+		view = view + '</div>';
+	}
+
+    // (2) Page Number
+    for (var p=0; p < data.totalPages; p++) {
+    	if (p === data.number) {
+    		view = view + '<div class="page-item disabled">';
+    		view = view + '<span class="page-link">['+ (p+1) +']&nbsp;</span>';
+    		view = view + '</div>';
+    	} else {
+    		view = view + '<div class="page-item">';
+    		view = view + '<a class="page-link" onclick="viewReplies('+ (p) +');"><span>['+ (p+1) +']</span></a>';
+    		view = view + '</div>';
+    	}
+    }
+
+    // (3) Next
+	if (data.last) {
+		view = view + '<div class="page-item disabled">';
+		view = view + '<span class="page-link">Next</span>';
+		view = view + '</div>';
+	} else {
+		view = view + '<div class="page-item">';
+		view = view + '<a class="page-link" href="javascript:viewReplies('+ (data.number + 1) +');"><span>Next</span></a>';
+		view = view + '</div>';
+	}
+
+	view = view + '</div>';
+
+	$("#reply-paging").html(view);
+
 	var replyCountView = '';
-	if (0 < replies.length) {
-		replyCountView = '<p>Reply '+replies.length+'</p>';
+	if (0 < data.totalElements) {
+		replyCountView = '<p>Reply '+data.totalElements+'</p>';
 	} else {
 		replyCountView = '<p>Not Exist Reply</p>';
 	}
-	
+
 	$("#reply-header").html(replyCountView);
-	
-	
 }
 
 
 // When page loading, it requests data of reply to API.
 $(document).ready(function() {
-	viewReplies();
+	viewReplies(0);
 	viewLikeAndDislikeCount("board");
 });
 
 
 // update reply
 function updateReply(form) {
-	
+
 	var replyNo = form.replyNo.value;
 	var targetContents = form.contents.value;
 	var targetMemberId = form.memberId.value;
-	
+
 	if (!validation('u', targetContents, targetMemberId)) {
 		return;
 	}
-	
+
 	var updateReply = {
 			"replyNo" : parseInt(replyNo),
 			"contents": targetContents,
 			"boardNo" : parseInt(boardNo),
 			"memberId": targetMemberId
 	}
-	
+
 	console.log("Request data : "+JSON.stringify(updateReply))
-	
+
 	$.ajax({
 		url: replyApi+'/'+replyNo,
 		method : 'PUT',
@@ -242,7 +298,7 @@ function updateReply(form) {
 		data: JSON.stringify(updateReply),
 		success :  function(res){
 			alert(res.message+' Update Reply['+replyNo+']');
-			viewReplies();
+			viewReplies(0);
 		},
 	    error: function(xhr, textStatus, error){
 	      console.log(xhr.statusText);
@@ -256,23 +312,23 @@ function updateReply(form) {
 
 // delete reply
 function deleteReply(form) {
-	
+
 	var checkFromUser = confirm('Do you really want to delete this Reply');
-	
+
 	if (checkFromUser == false) {
 		return false;
 	}
-	
+
 	var replyNo = form.replyNo.value;
 	var targetContents = form.contents.value;
 	var targetMemberId = form.memberId.value;
-	
+
 	if (!validation('u', targetContents, targetMemberId)) {
 		return;
 	}
-	
+
 	console.log(replyApi+'/'+replyNo+'?boardNo='+boardNo+'&memberId='+memberId)
-	
+
 	$.ajax({
 		url: replyApi+'/'+replyNo+'?boardNo='+boardNo+'&memberId='+memberId,
 		method : 'DELETE',
@@ -298,7 +354,7 @@ function viewLikeAndDislikeCount(targetType) {
 	} else {
 		likeApiGet = likeApi+'?targetType='+targetType+'&targetNo='+boardNo+'&memberId='+memberId;
 	}
-	
+
 	$.ajax({
 		url: likeApiGet,
 		method : 'GET',
@@ -328,34 +384,34 @@ $(document).on("click", '.likeImg-board', function() {
 });
 
 function createOrUpdateLike(status, type, typeNo) {
-	
+
 	var likeStatus = false
 	if (status === 'like') {
 		likeStatus = true;
-		
+
 	} else if (status === 'dislike') {
 		likeStatus = false;
-		
+
 	} else {
 		alert("function error");
 		return;
 	}
-	
+
 	if ( !memberId ) {
 		alert("Please do login. like fuction can be used by login user only.");
 		return;
-	} 
-	
-	
+	}
+
+
 	var likeObj = {
 			"likeStatus" : likeStatus,
 			"likeType": type,
 			"typeNo" : typeNo,
 			"memberId": memberId
 	}
-	
+
 	console.log("createOrUpdateLike Request data : "+JSON.stringify(updateReply))
-	
+
 	$.ajax({
 		url: likeApi,
 		method : 'POST',
@@ -368,7 +424,7 @@ function createOrUpdateLike(status, type, typeNo) {
 			} else if (type === 'reply') {
 				viewReplies();
 			}
-			
+
 		},
 	    error: function(xhr, textStatus, error){
 	      console.log(xhr.statusText);
